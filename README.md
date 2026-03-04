@@ -228,11 +228,13 @@ sf apex run test \
 
 ## Documentation
 
+**[View the full documentation site](https://fabianacn2026.github.io/abnamro-balcol-inspector-docs/)**
+
 | | Document | What You'll Find |
 |:---:|---|---|
-| 📖 | **[Technical Documentation](docs/technical-documentation.html)** | Architecture deep-dive, API reference, implementation details |
-| 🚀 | **[Quick Start Guide](docs/quick-start-guide.html)** | Step-by-step deployment and first-use walkthrough |
-| 👋 | **[Onboarding](docs/onboarding.html)** | Interactive visual guide for new users |
+| 📖 | **[Technical Documentation](https://fabianacn2026.github.io/abnamro-balcol-inspector-docs/technical-documentation.html)** | Architecture deep-dive, API reference, implementation details |
+| 🚀 | **[Quick Start Guide](https://fabianacn2026.github.io/abnamro-balcol-inspector-docs/quick-start-guide.html)** | Step-by-step deployment and first-use walkthrough |
+| 👋 | **[Onboarding](https://fabianacn2026.github.io/abnamro-balcol-inspector-docs/)** | Interactive visual guide for new users |
 
 <br>
 
