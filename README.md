@@ -20,6 +20,12 @@ directly inside your Salesforce org — zero external dependencies.
 
 <br>
 
+<a href="https://githubsfdeploy.herokuapp.com?owner=FabianACN2026&repo=abnamro-balcol-inspector&ref=main">
+  <img alt="Deploy to Salesforce" src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
+</a>
+
+<br>
+
 <img src="docs/assets/hero-screenshot.png" alt="BALCOL Inspector" width="720">
 
 </div>
