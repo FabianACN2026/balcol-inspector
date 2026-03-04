@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BALCOL Inspector — User Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --aa-teal: #009488;
+    --aa-teal-dark: #00796B;
+    --aa-teal-darkest: #004D40;
+    --aa-teal-light: #E0F2F1;
+    --aa-yellow: #F9BD20;
+    --aa-text: #1A1A1A;
+    --aa-text-secondary: #4A4A4A;
+    --aa-text-muted: #6B7280;
+    --aa-grey-light: #F5F5F5;
+    --aa-bg: #FAFAFA;
+    --aa-dark-bg: #1a1f1e;
+    --aa-dark-surface: #252b2a;
+    --transition-speed: 0.6s;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--aa-bg);
+    color: var(--aa-text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* ── Sections ── */
+.section {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(100vh);
+    opacity: 0;
+    transition: transform var(--transition-speed) cubic-bezier(.4,0,.2,1),
+                opacity var(--transition-speed) cubic-bezier(.4,0,.2,1);
+    will-change: transform, opacity;
+}
+.section.active { transform: translateY(0); opacity: 1; }
+.section.above { transform: translateY(-100vh); opacity: 0; }
+.section.below { transform: translateY(100vh); opacity: 0; }
+
+/* ── Dot Navigation ── */
+.dot-nav {
+    position: fixed;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+}
+.dot-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+.dot-nav-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--aa-text-secondary);
+    opacity: 0;
+    transform: translateX(8px);
+    transition: opacity .25s, transform .25s;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+}
+.dot-nav-item:hover .dot-nav-label,
+.dot-nav-item.active .dot-nav-label {
+    opacity: 1;
+    transform: translateX(0);
+}
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #c0c0c0;
+    background: transparent;
+    transition: background .25s, border-color .25s, transform .25s;
+    flex-shrink: 0;
+}
+.dot-nav-item.active .dot {
+    background: var(--aa-teal);
+    border-color: var(--aa-teal);
+    transform: scale(1.3);
+}
+.dot-nav-item:hover .dot { border-color: var(--aa-teal); }
+
+/* ── Skip Tour ── */
+.skip-tour {
+    position: fixed;
+    bottom: 24px;
+    right: 32px;
+    z-index: 1000;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--aa-text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    opacity: .6;
+    transition: opacity .2s;
+    background: none;
+    border: none;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+}
+.skip-tour:hover { opacity: 1; }
+
+/* ── Shared layouts ── */
+.section-inner {
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 56px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.split-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 48px;
+    align-items: center;
+    height: 100vh;
+    max-width: 1360px;
+    width: 100%;
+    padding: 0 56px;
+}
+.split-left, .split-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 92vh;
+    overflow: hidden;
+}
+h1 { font-size: 48px; font-weight: 800; line-height: 1.1; letter-spacing: -0.5px; }
+h2 { font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 10px; letter-spacing: -0.3px; }
+.subtitle { font-size: 15px; color: var(--aa-text-secondary); line-height: 1.6; }
+
+/* Section tag with SVG icon */
+.section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--aa-teal);
+    margin-bottom: 14px;
+}
+.section-tag svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--aa-teal);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s, background .15s;
+    text-decoration: none;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-primary {
+    background: var(--aa-teal);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0,148,136,.25);
+}
+.btn-primary:hover { background: var(--aa-teal-dark); }
+
+/* Feature list */
+.feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: 8px 0;
+}
+.feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--aa-text-secondary);
+}
+.feature-list li::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--aa-teal);
+    flex-shrink: 0;
+    margin-top: 7px;
+}
+
+/* How-to steps */
+.how-to {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 8px 0;
+    font-size: 13px;
+    color: var(--aa-text-secondary);
+    line-height: 1.5;
+}
+.how-to-step {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+.how-to-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--aa-teal);
+    flex-shrink: 0;
+    width: 16px;
+    text-align: right;
+}
+.how-to-step code {
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    background: #f0f4f3;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: var(--aa-teal-dark);
+}
+
+/* Info & warning callouts */
+.info-callout {
+    background: rgba(0,148,136,.05);
+    border-left: 3px solid var(--aa-teal);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin-top: 8px;
+    color: var(--aa-text-secondary);
+}
+.info-callout strong { color: var(--aa-teal-dark); }
+.warning-callout {
+    background: #FFF8E1;
+    border-left: 3px solid var(--aa-yellow);
+    padding: 8px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin-top: 8px;
+}
+.warning-callout strong { color: #E65100; }
+
+/* ── Screenshot ── */
+.screenshot-frame {
+    overflow: hidden;
+}
+.screenshot-frame img {
+    width: 110%;
+    height: auto;
+    display: block;
+    margin-left: -5%;
+}
+
+/* ── Section 0: Hero ── */
+.hero-section {
+    background: #fafbfc;
+    position: relative;
+    overflow: hidden;
+}
+.hero-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 60% 50% at 25% 40%, rgba(0,148,136,.05) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 80% 60%, rgba(0,121,107,.03) 0%, transparent 60%);
+    pointer-events: none;
+}
+.hero-split {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    align-items: center;
+    gap: 48px;
+    max-width: 1500px;
+    width: 100%;
+    padding: 0 56px 0 0;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+.hero-image {
+    position: relative;
+    overflow: hidden;
+}
+.hero-image img.hero-screenshot {
+    width: 145%;
+    height: auto;
+    display: block;
+    margin-left: -25%;
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+    animation: hero-img-in 1.2s cubic-bezier(.16,1,.3,1) 0.3s forwards;
+}
+@keyframes hero-img-in {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+.hero-abn-logo {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+    object-position: left;
+    align-self: flex-start;
+    margin-left: -2px;
+}
+.hero-text {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    opacity: 0;
+    transform: translateX(20px);
+    animation: hero-text-in 0.9s cubic-bezier(.16,1,.3,1) 0.5s forwards;
+}
+@keyframes hero-text-in {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+.hero-logo-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #009488, #00796B);
+    box-shadow: 0 6px 24px rgba(0, 148, 136, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.hero-logo-box svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 8px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    background: rgba(0,148,136,.06);
+    border: 1px solid rgba(0,148,136,.12);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--aa-teal);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+.hero-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--aa-teal);
+    animation: pulse-dot 2s ease infinite;
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .35; }
+}
+.hero-text h1 { font-size: 48px; }
+.hero-text h1 span { color: var(--aa-teal); }
+.hero-text .subtitle { font-size: 16px; max-width: 440px; }
+.hero-no-install {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--aa-text-muted);
+}
+.hero-no-install svg {
+    width: 14px;
+    height: 14px;
+    stroke: var(--aa-teal);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.hero-features {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+}
+.hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--aa-text-secondary);
+}
+.hero-chip svg {
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ── Section 1: Overview Cards ── */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 28px;
+}
+.tool-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+    cursor: pointer;
+    border: 1.5px solid #eee;
+    transition: transform .25s, border-color .25s, box-shadow .25s;
+    box-shadow: 0 1px 6px rgba(0,0,0,.04);
+    opacity: 0;
+    transform: translateY(30px);
+}
+.tool-card.revealed {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity .5s ease, transform .5s ease, border-color .25s, box-shadow .25s;
+}
+.tool-card:hover {
+    border-color: var(--aa-teal);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(0,148,136,.1);
+}
+.tool-card .card-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+.tool-card .card-icon-box svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.tool-card .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+.tool-card .card-desc {
+    font-size: 12.5px;
+    color: var(--aa-text-muted);
+    line-height: 1.5;
+}
+
+/* ── Section 7: CTA ── */
+.cta-section {
+    background: linear-gradient(135deg, var(--aa-teal-darkest) 0%, #0d1514 100%);
+    color: #fff;
+}
+.cta-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 640px;
+    width: 100%;
+    padding: 0 32px;
+}
+.cta-inner h2 {
+    color: #fff;
+    font-size: 38px;
+    margin-bottom: 12px;
+}
+.cta-lead {
+    font-size: 16px;
+    color: rgba(255,255,255,.55);
+    line-height: 1.6;
+    margin-bottom: 36px;
+    max-width: 480px;
+}
+.doc-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    width: 100%;
+    margin-bottom: 28px;
+}
+.doc-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    text-decoration: none;
+    color: #fff;
+    transition: background .2s, border-color .2s, transform .15s;
+    text-align: left;
+}
+.doc-card:hover {
+    background: rgba(255,255,255,.09);
+    border-color: rgba(255,255,255,.18);
+    transform: translateY(-2px);
+}
+.doc-card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.doc-card-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.doc-card-text { display: flex; flex-direction: column; gap: 3px; }
+.doc-card-title {
+    font-size: 14px;
+    font-weight: 700;
+}
+.doc-card-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,.45);
+    line-height: 1.45;
+}
+.cta-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+.cta-buttons .btn { font-size: 14px; padding: 12px 24px; }
+.cta-footer {
+    font-size: 11px;
+    color: rgba(255,255,255,.25);
+    margin-top: 28px;
+    letter-spacing: 0.3px;
+}
+
+/* ── Navbar ── */
+.navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 52px;
+    background: rgba(250,250,250,.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    z-index: 900;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: opacity .35s, transform .35s;
+}
+.navbar.visible { opacity: 1; transform: translateY(0); }
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.navbar-logo-box {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #009488, #00796B);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.navbar-logo-box svg {
+    width: 13px;
+    height: 13px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.navbar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--aa-text);
+}
+.navbar-sep {
+    color: #d0d0d0;
+    font-weight: 300;
+    font-size: 13px;
+}
+.navbar-page {
+    font-size: 12.5px;
+    color: var(--aa-text-muted);
+    font-weight: 400;
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+    .section, .tool-card, .tool-card.revealed, .navbar, .dot, .dot-nav-label { transition: none; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+    .dot-nav { right: 12px; gap: 12px; }
+    .dot-nav-label { display: none; }
+    .dot { width: 8px; height: 8px; }
+    .section-inner { padding: 0 20px; }
+    .split-layout {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 52px 20px 20px;
+        height: 100vh;
+        align-content: start;
+        overflow-y: auto;
+    }
+    .split-left, .split-right { max-height: none; }
+    h1 { font-size: 32px; }
+    h2 { font-size: 24px; }
+    .hero-split { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
+    .hero-image img { width: 100%; margin-left: 0; }
+    .hero-text h1 { font-size: 32px; }
+    .hero-text .subtitle { font-size: 14px; }
+    .hero-features { gap: 6px; }
+    .hero-chip { font-size: 11px; padding: 4px 8px; }
+    .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px; }
+    .tool-card { padding: 16px 12px; }
+    .tool-card .card-icon-box { width: 36px; height: 36px; margin-bottom: 10px; }
+    .tool-card .card-title { font-size: 13px; }
+    .tool-card .card-desc { font-size: 11px; }
+    .skip-tour { right: 14px; bottom: 14px; }
+    .navbar { padding: 0 16px; height: 48px; }
+    .feature-list li { font-size: 12.5px; }
+    .subtitle { font-size: 13.5px; }
+    .section-tag { font-size: 10px; }
+    .btn { padding: 10px 20px; font-size: 13px; }
+    .doc-cards { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- SVG icon definitions -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+    <symbol id="icon-code" viewBox="0 0 24 24"><path d="M7 8l-4 4 4 4"/><path d="M17 8l4 4-4 4"/><path d="M14 4l-4 16"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></symbol>
+    <symbol id="icon-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></symbol>
+    <symbol id="icon-play" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></symbol>
+    <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+    <symbol id="icon-zap" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+    <symbol id="icon-check-circle" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+    <symbol id="icon-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></symbol>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="icon-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
+</svg>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+    <div class="navbar-brand">
+        <div class="navbar-logo-box"><svg><use href="#icon-code"/></svg></div>
+        <span class="navbar-title">BALCOL Inspector</span>
+        <span class="navbar-sep">/</span>
+        <span class="navbar-page">User Onboarding</span>
+    </div>
+</nav>
+
+<!-- Dot Navigation -->
+<nav class="dot-nav" id="dotNav">
+    <div class="dot-nav-item active" data-section="0"><span class="dot-nav-label">Welcome</span><div class="dot"></div></div>
+    <div class="dot-nav-item" data-section="1"><span class="dot-nav-label">Overview</span><div class="dot"></div></div>
+    <div class="dot-nav-item" data-section="2"><span class="dot-nav-label">How to Access</span><div class="dot"></div></div>
+    <div class="dot-nav-item" data-section="3"><span class="dot-nav-label">Record Inspector</span><div class="dot"></div></div>
+    <div class="dot-nav-item" data-section="4"><span class="dot-nav-label">SOQL Explorer</span><div class="dot"></div></div>
+    <div class="dot-nav-item" data-section="5"><span class="dot-nav-label">Apex Runner</span><div class="dot"></div></div>
+    <div class="dot-nav-item" data-section="6"><span class="dot-nav-label">Data Loader</span><div class="dot"></div></div>
+    <div class="dot-nav-item" data-section="7"><span class="dot-nav-label">Documentation</span><div class="dot"></div></div>
+</nav>
+
+<button class="skip-tour" id="skipTour">Skip tour</button>
+
+<!-- ===================== SECTION 0: HERO ===================== -->
+<section class="section hero-section active" id="section0">
+    <div class="hero-split">
+        <div class="hero-image">
+            <img src="assets/hero-onboarding.png" alt="BALCOL Inspector — Record Inspector showing all fields, metadata, and values inside Salesforce" class="hero-screenshot">
+        </div>
+        <div class="hero-text">
+            <img src="https://cdn.brandfetch.io/idRWoUqn37/w/800/h/198/theme/dark/logo.png?c=1bxid64Mup7aczewSAYMX&t=1667780536864" alt="ABN AMRO" class="hero-abn-logo">
+            <div class="hero-badge"><span class="hero-badge-dot"></span> Salesforce Developer Toolkit</div>
+            <h1><span>BALCOL</span> Inspector</h1>
+            <p class="subtitle">Four developer tools in one component &mdash; inspect records, write queries, execute Apex, and load data without leaving Salesforce.</p>
+            <div class="hero-features">
+                <span class="hero-chip"><svg style="stroke:var(--aa-teal);"><use href="#icon-search"/></svg> Record Inspector</span>
+                <span class="hero-chip"><svg style="stroke:#1565C0;"><use href="#icon-database"/></svg> SOQL Explorer</span>
+                <span class="hero-chip"><svg style="stroke:#E65100;"><use href="#icon-play"/></svg> Apex Runner</span>
+                <span class="hero-chip"><svg style="stroke:#C62828;"><use href="#icon-upload"/></svg> Data Loader</span>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center; margin-top:4px;">
+                <button class="btn btn-primary" onclick="goTo(1)">
+                    Get Started
+                    <svg style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><use href="#icon-arrow-right"/></svg>
+                </button>
+            </div>
+            <div class="hero-no-install">
+                <svg><use href="#icon-check-circle"/></svg>
+                No installation required &mdash; already in your Utility Bar
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== SECTION 1: OVERVIEW ===================== -->
+<section class="section" id="section1">
+    <div class="section-inner" style="text-align:center; align-items:center;">
+        <div class="section-tag">
+            <svg><use href="#icon-zap"/></svg>
+            Zero Setup Required
+        </div>
+        <h2>Four tools. One component. No installation.</h2>
+        <p class="subtitle" style="max-width:540px;">BALCOL Inspector is already deployed to your Salesforce org. Open the Utility Bar and start working &mdash; no downloads, no extensions, no configuration.</p>
+        <div class="cards-grid" id="cardsGrid">
+            <div class="tool-card" onclick="goTo(3)">
+                <div class="card-icon-box" style="background:rgba(0,148,136,.08);">
+                    <svg style="stroke:var(--aa-teal);"><use href="#icon-search"/></svg>
+                </div>
+                <div class="card-title">Record Inspector</div>
+                <div class="card-desc">View all fields, metadata, related lists, and field history for any record. Edit inline.</div>
+            </div>
+            <div class="tool-card" onclick="goTo(4)">
+                <div class="card-icon-box" style="background:rgba(21,101,192,.08);">
+                    <svg style="stroke:#1565C0;"><use href="#icon-database"/></svg>
+                </div>
+                <div class="card-title">SOQL Explorer</div>
+                <div class="card-desc">Write SOQL queries with autocomplete, multi-tab support, and export to CSV.</div>
+            </div>
+            <div class="tool-card" onclick="goTo(5)">
+                <div class="card-icon-box" style="background:rgba(230,81,0,.08);">
+                    <svg style="stroke:#E65100;"><use href="#icon-play"/></svg>
+                </div>
+                <div class="card-title">Apex Runner</div>
+                <div class="card-desc">Execute anonymous Apex with parsed debug output, snippets, and log browsing.</div>
+            </div>
+            <div class="tool-card" onclick="goTo(6)">
+                <div class="card-icon-box" style="background:rgba(198,40,40,.08);">
+                    <svg style="stroke:#C62828;"><use href="#icon-upload"/></svg>
+                </div>
+                <div class="card-title">Data Loader</div>
+                <div class="card-desc">Import CSV data with field mapping, batch processing, and per-row results.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== SECTION 2: HOW TO ACCESS ===================== -->
+<section class="section" id="section2">
+    <div class="split-layout" style="grid-template-columns:1.1fr 0.9fr;">
+        <div class="split-left">
+            <div class="section-tag">
+                <svg><use href="#icon-zap"/></svg>
+                Getting Started
+            </div>
+            <h2>How to Access the Inspector</h2>
+            <p class="subtitle" style="margin-bottom:16px;">The BALCOL Inspector lives in the <strong>Utility Bar</strong> at the bottom of every Lightning page. No setup needed &mdash; just click and go.</p>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;align-items:flex-start;gap:12px;">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--aa-teal);color:#fff;font-weight:700;font-size:12px;flex-shrink:0;">1</span>
+                    <div><strong style="font-size:14px;">Look at the Utility Bar</strong><br><span style="color:var(--aa-text-muted);font-size:13px;">At the bottom of your screen you'll see a thin bar with icons. It's always visible on any page.</span></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:12px;">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--aa-teal);color:#fff;font-weight:700;font-size:12px;flex-shrink:0;">2</span>
+                    <div><strong style="font-size:14px;">Click "BALCOL Inspector"</strong><br><span style="color:var(--aa-text-muted);font-size:13px;">The Inspector panel opens from the bottom. Use the tab bar to switch between tools.</span></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:12px;">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--aa-teal);color:#fff;font-weight:700;font-size:12px;flex-shrink:0;">3</span>
+                    <div><strong style="font-size:14px;">Resize or pop out</strong><br><span style="color:var(--aa-text-muted);font-size:13px;">Drag the top edge to resize, or click the expand icon to open in a separate window.</span></div>
+                </div>
+            </div>
+            <div class="info-callout" style="margin-top:14px;">
+                <strong>No installation needed.</strong> If you can't see it, ask your admin to assign the <strong>ABN_Dev_Tools_Admin</strong> permission set.
+            </div>
+        </div>
+        <div class="split-right">
+            <div style="background:var(--aa-dark-bg);border-radius:12px;padding:20px;color:#E8E8E6;font-size:13px;border:1px solid #2a302f;">
+                <div style="text-align:center;margin-bottom:14px;">
+                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--aa-teal);font-weight:700;margin-bottom:8px;">Utility Bar Preview</div>
+                    <div style="background:#252b2a;border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:center;gap:14px;border:1px solid #353b3a;">
+                        <span style="opacity:0.35;font-size:11px;">Notes</span>
+                        <span style="opacity:0.35;font-size:11px;">History</span>
+                        <span style="background:var(--aa-teal);color:#fff;padding:4px 10px;border-radius:5px;font-weight:600;font-size:11px;">BALCOL Inspector</span>
+                        <span style="opacity:0.35;font-size:11px;">Admin</span>
+                    </div>
+                </div>
+                <div style="background:rgba(0,148,136,0.06);border:1px solid rgba(0,148,136,0.15);border-radius:8px;padding:10px 12px;margin-top:10px;">
+                    <div style="font-weight:600;font-size:11px;color:var(--aa-teal);margin-bottom:4px;">Pro tip</div>
+                    <div style="font-size:12px;line-height:1.5;color:#9a9a92;">The panel stays open as you navigate between records and pages. Your queries and tabs are preserved.</div>
+                </div>
+                <div style="margin-top:14px;">
+                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#6a6a62;font-weight:600;margin-bottom:6px;">Permission levels</div>
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#9a9a92;">
+                            <svg style="width:13px;height:13px;stroke:var(--aa-teal);fill:none;stroke-width:2;flex-shrink:0;"><use href="#icon-shield"/></svg>
+                            <span><strong style="color:#ccc;">Dev_Tools_Access</strong> &mdash; read-only</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#9a9a92;">
+                            <svg style="width:13px;height:13px;stroke:var(--aa-yellow);fill:none;stroke-width:2;flex-shrink:0;"><use href="#icon-zap"/></svg>
+                            <span><strong style="color:#ccc;">Dev_Tools_Power</strong> &mdash; full access</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== SECTION 3: RECORD INSPECTOR ===================== -->
+<section class="section" id="section3">
+    <div class="split-layout">
+        <div class="split-left">
+            <div class="section-tag">
+                <svg><use href="#icon-search"/></svg>
+                Record Inspector
+            </div>
+            <h2>Inspect any record instantly</h2>
+            <p class="subtitle" style="margin-bottom:10px;">Paste a Salesforce Record ID to see every field, its API name, data type, and current value. Edit fields inline without opening the record page.</p>
+
+            <div class="how-to">
+                <strong style="font-size:12px; text-transform:uppercase; letter-spacing:0.8px; color:var(--aa-teal); margin-bottom:2px;">How to use</strong>
+                <div class="how-to-step"><span class="how-to-num">1.</span> Open the <strong>Record Inspector</strong> tab</div>
+                <div class="how-to-step"><span class="how-to-num">2.</span> Paste a Record ID (e.g. <code>001Xx000003GbRd</code>)</div>
+                <div class="how-to-step"><span class="how-to-num">3.</span> Browse fields, related lists, and history</div>
+                <div class="how-to-step"><span class="how-to-num">4.</span> Click any field value to edit it inline</div>
+            </div>
+
+            <ul class="feature-list" style="margin-top:8px;">
+                <li>Multi-tab support &mdash; inspect up to 8 records side by side</li>
+                <li>Filter fields by name, type, or populated values only</li>
+                <li>Child relationship browsing with record counts</li>
+                <li>Field history tracking with timestamp and user info</li>
+                <li>Single, bulk, and cascade record deletion</li>
+            </ul>
+        </div>
+        <div class="split-right">
+            <div class="screenshot-frame">
+                <img src="assets/hero-screenshot.png" alt="Record Inspector showing field metadata, types, and values for a Salesforce record">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== SECTION 4: SOQL EXPLORER ===================== -->
+<section class="section" id="section4">
+    <div class="split-layout">
+        <div class="split-left">
+            <div class="section-tag">
+                <svg><use href="#icon-database"/></svg>
+                SOQL Explorer
+            </div>
+            <h2>Query your data with ease</h2>
+            <p class="subtitle" style="margin-bottom:10px;">A full-featured SOQL editor with IntelliSense autocomplete that suggests objects, fields, and relationships as you type &mdash; up to 4 levels deep.</p>
+
+            <div class="how-to">
+                <strong style="font-size:12px; text-transform:uppercase; letter-spacing:0.8px; color:var(--aa-teal); margin-bottom:2px;">How to use</strong>
+                <div class="how-to-step"><span class="how-to-num">1.</span> Open the <strong>SOQL Explorer</strong> tab</div>
+                <div class="how-to-step"><span class="how-to-num">2.</span> Type <code>SELECT</code> and press <code>Ctrl+Space</code> for autocomplete</div>
+                <div class="how-to-step"><span class="how-to-num">3.</span> Press <code>Ctrl+Enter</code> to execute the query</div>
+                <div class="how-to-step"><span class="how-to-num">4.</span> Click any cell to edit values inline, or export as CSV</div>
+            </div>
+
+            <ul class="feature-list" style="margin-top:8px;">
+                <li>Multi-tab queries &mdash; up to 8 tabs with independent results</li>
+                <li>Cursor-based pagination with no 2,000 row limit</li>
+                <li>Field chips showing available fields for the queried object</li>
+                <li>Query plan analysis and SOSL support</li>
+                <li>Clickable Record IDs open directly in the Record Inspector</li>
+            </ul>
+        </div>
+        <div class="split-right">
+            <div class="screenshot-frame">
+                <img src="assets/screenshot-soql.png" alt="SOQL Explorer with autocomplete, field chips, and paginated query results">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== SECTION 5: APEX RUNNER ===================== -->
+<section class="section" id="section5">
+    <div class="split-layout">
+        <div class="split-left">
+            <div class="section-tag">
+                <svg><use href="#icon-play"/></svg>
+                Apex Runner
+            </div>
+            <h2>Execute Apex code instantly</h2>
+            <p class="subtitle" style="margin-bottom:10px;">Run anonymous Apex directly from the browser. The runner parses debug logs and surfaces only the output you care about &mdash; no more scrolling through raw log files.</p>
+
+            <div class="how-to">
+                <strong style="font-size:12px; text-transform:uppercase; letter-spacing:0.8px; color:var(--aa-teal); margin-bottom:2px;">How to use</strong>
+                <div class="how-to-step"><span class="how-to-num">1.</span> Open the <strong>Apex Runner</strong> tab</div>
+                <div class="how-to-step"><span class="how-to-num">2.</span> Write your code or select a <strong>snippet</strong> from the toolbar</div>
+                <div class="how-to-step"><span class="how-to-num">3.</span> Click <strong>Execute Anonymous</strong> (or press <code>Ctrl+Enter</code>)</div>
+                <div class="how-to-step"><span class="how-to-num">4.</span> View parsed <code>System.debug()</code> output below</div>
+            </div>
+
+            <ul class="feature-list" style="margin-top:8px;">
+                <li>Pre-built code snippets for common operations</li>
+                <li>Browse and download full event logs</li>
+                <li>Compilation error highlighting with line numbers</li>
+                <li>Governor limits monitoring per execution</li>
+            </ul>
+
+            <div class="warning-callout">
+                <strong>Caution:</strong> Apex runs against live data. DML operations modify real records &mdash; always double-check before executing.
+            </div>
+        </div>
+        <div class="split-right">
+            <div class="screenshot-frame">
+                <img src="assets/screenshot-apex.png" alt="Apex Runner showing code execution with debug output and snippet toolbar">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== SECTION 6: DATA LOADER ===================== -->
+<section class="section" id="section6">
+    <div class="split-layout">
+        <div class="split-left">
+            <div class="section-tag">
+                <svg><use href="#icon-upload"/></svg>
+                Data Loader
+            </div>
+            <h2>Import data from CSV</h2>
+            <p class="subtitle" style="margin-bottom:10px;">Upload a CSV file or paste data directly from Excel. A step-by-step wizard guides you through object selection, field mapping, and execution with per-row results.</p>
+
+            <div class="how-to">
+                <strong style="font-size:12px; text-transform:uppercase; letter-spacing:0.8px; color:var(--aa-teal); margin-bottom:2px;">How to use</strong>
+                <div class="how-to-step"><span class="how-to-num">1.</span> Open the <strong>Data Loader</strong> tab and select an object</div>
+                <div class="how-to-step"><span class="how-to-num">2.</span> Upload a CSV or paste data from clipboard</div>
+                <div class="how-to-step"><span class="how-to-num">3.</span> Map CSV columns to Salesforce fields (auto-mapped when names match)</div>
+                <div class="how-to-step"><span class="how-to-num">4.</span> Choose operation: <strong>Insert</strong>, <strong>Update</strong>, or <strong>Upsert</strong></div>
+                <div class="how-to-step"><span class="how-to-num">5.</span> Execute and review per-row success/failure results</div>
+            </div>
+
+            <ul class="feature-list" style="margin-top:8px;">
+                <li>Drag-and-drop CSV upload or paste from Excel/Sheets</li>
+                <li>Automatic and manual field mapping</li>
+                <li>Batch processing in groups of 200 records</li>
+                <li>Per-row error details for failed records</li>
+            </ul>
+        </div>
+        <div class="split-right">
+            <div class="screenshot-frame">
+                <img src="assets/screenshot-dataloader.png" alt="Data Loader CSV import wizard with paste area and field mapping">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== SECTION 7: DOCUMENTATION ===================== -->
+<section class="section cta-section" id="section7">
+    <div class="cta-inner">
+        <div class="hero-logo-box" style="width:48px;height:48px;border-radius:12px;margin-bottom:20px;">
+            <svg style="width:24px;height:24px;"><use href="#icon-code"/></svg>
+        </div>
+        <h2>Ready to dive deeper?</h2>
+        <p class="cta-lead">
+            Explore the full documentation for step-by-step walkthroughs, architecture details, and best practices.
+        </p>
+        <div class="doc-cards">
+            <a href="quick-start-guide.html#inspecting-record" class="doc-card">
+                <div class="doc-card-icon" style="background:rgba(249,189,32,.15);">
+                    <svg style="stroke:var(--aa-yellow);"><use href="#icon-rocket"/></svg>
+                </div>
+                <div class="doc-card-text">
+                    <span class="doc-card-title">Quick Start Guide</span>
+                    <span class="doc-card-desc">Hands-on walkthroughs for each tool with practical examples, keyboard shortcuts, and tips.</span>
+                </div>
+            </a>
+            <a href="technical-documentation.html" class="doc-card">
+                <div class="doc-card-icon" style="background:rgba(0,148,136,.15);">
+                    <svg style="stroke:var(--aa-teal);"><use href="#icon-book"/></svg>
+                </div>
+                <div class="doc-card-text">
+                    <span class="doc-card-title">Technical Documentation</span>
+                    <span class="doc-card-desc">Architecture, Apex controllers, security model, test coverage, and deployment guide.</span>
+                </div>
+            </a>
+        </div>
+        <div class="cta-buttons">
+            <a href="quick-start-guide.html" class="btn" style="background:var(--aa-yellow); color:var(--aa-text); box-shadow:0 4px 14px rgba(249,189,32,.25); text-decoration:none;">
+                Open Quick Start
+                <svg style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><use href="#icon-arrow-right"/></svg>
+            </a>
+            <a href="technical-documentation.html" class="btn" style="background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.15); text-decoration:none;">
+                View Technical Docs
+            </a>
+        </div>
+        <div class="cta-footer">ABN AMRO &mdash; BALCOL Inspector v1.0 &mdash; Salesforce Developer Tools</div>
+    </div>
+</section>
+
+<script>
+const TOTAL = 8;
+let current = 0;
+let transitioning = false;
+const sections = [];
+const dots = document.querySelectorAll('.dot-nav-item');
+
+for (let i = 0; i < TOTAL; i++) sections.push(document.getElementById('section' + i));
+
+function goTo(idx) {
+    if (idx < 0 || idx >= TOTAL || idx === current || transitioning) return;
+    transitioning = true;
+    current = idx;
+
+    for (let i = 0; i < TOTAL; i++) {
+        const s = sections[i];
+        s.classList.remove('active', 'above', 'below');
+        if (i === current) s.classList.add('active');
+        else if (i < current) s.classList.add('above');
+        else s.classList.add('below');
+    }
+
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    document.getElementById('navbar').classList.toggle('visible', current > 0);
+    onSectionEnter(current);
+    setTimeout(() => { transitioning = false; }, 650);
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+});
+
+dots.forEach(d => d.addEventListener('click', () => goTo(parseInt(d.dataset.section))));
+document.getElementById('skipTour').addEventListener('click', () => goTo(TOTAL - 1));
+
+let wheelCooldown = false;
+document.addEventListener('wheel', e => {
+    if (wheelCooldown) return;
+    wheelCooldown = true;
+    if (e.deltaY > 30) goTo(current + 1);
+    else if (e.deltaY < -30) goTo(current - 1);
+    setTimeout(() => { wheelCooldown = false; }, 800);
+}, { passive: true });
+
+let touchStartY = 0;
+document.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', e => {
+    const dy = touchStartY - e.changedTouches[0].clientY;
+    if (Math.abs(dy) > 50) { dy > 0 ? goTo(current + 1) : goTo(current - 1); }
+}, { passive: true });
+
+const animated = new Set();
+function onSectionEnter(idx) {
+    if (animated.has(idx)) return;
+    animated.add(idx);
+    if (idx === 1) {
+        document.querySelectorAll('#cardsGrid .tool-card').forEach((c, i) => {
+            setTimeout(() => c.classList.add('revealed'), 150 * i);
+        });
+    }
+}
+</script>
+</body>
+</html>

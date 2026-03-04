@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomPermission xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Grants access to elevated developer tools: SOQL Explorer, Apex Runner, and Data Loader. These tools execute user-context queries and code equivalent to Developer Console access. Only assign to trusted administrators.</description>
+    <isLicensed>false</isLicensed>
+    <label>Dev Tools Power</label>
+</CustomPermission>

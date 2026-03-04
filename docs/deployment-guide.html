@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deployment Guide - ABN AMRO Salesforce Developer Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & Base ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --abn-teal:        #009488;
+      --abn-teal-dark:   #00796B;
+      --abn-teal-deeper: #004D40;
+      --abn-yellow:      #F9BD20;
+      --abn-yellow-light:#FFF3D0;
+      --abn-bg:          #FAFBFC;
+      --abn-surface:     #FFFFFF;
+      --abn-text:        #1A2332;
+      --abn-text-muted:  #5A6B7F;
+      --abn-border:      #E2E8F0;
+      --abn-code-bg:     #0D1B2A;
+      --abn-code-text:   #E0E6ED;
+      --abn-info-bg:     #E6F7F6;
+      --abn-info-border: #009488;
+      --abn-warn-bg:     #FFF8E1;
+      --abn-warn-border: #F9BD20;
+      --abn-error-bg:    #FFF0F0;
+      --abn-error-border:#E53935;
+      --abn-success-bg:  #E8F5E9;
+      --abn-success-border:#43A047;
+      --radius:          8px;
+      --shadow-sm:       0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md:       0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg:       0 10px 30px rgba(0,0,0,0.10);
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--abn-bg);
+      color: var(--abn-text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Cover Page ─────────────────────────────────────────────── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, var(--abn-teal-deeper) 0%, var(--abn-teal-dark) 40%, var(--abn-teal) 100%);
+      color: #fff;
+      text-align: center;
+      padding: 3rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -20%;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(249,189,32,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .cover::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      left: -15%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .cover-logo {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--abn-yellow);
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .cover-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .cover-subtitle {
+      font-size: 1.35rem;
+      font-weight: 300;
+      opacity: 0.9;
+      max-width: 520px;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .cover-meta {
+      display: flex;
+      gap: 2.5rem;
+      font-size: 0.82rem;
+      opacity: 0.7;
+      position: relative;
+    }
+
+    .cover-meta dt { font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem; margin-bottom: 0.2rem; }
+    .cover-meta dd { font-weight: 300; }
+
+    .cover-divider {
+      width: 60px;
+      height: 3px;
+      background: var(--abn-yellow);
+      border-radius: 2px;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    /* ── Main Content ───────────────────────────────────────────── */
+    .content {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+    }
+
+    /* ── Table of Contents ──────────────────────────────────────── */
+    .toc {
+      background: var(--abn-surface);
+      border: 1px solid var(--abn-border);
+      border-radius: var(--radius);
+      padding: 2rem 2.5rem;
+      margin-bottom: 3.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .toc-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--abn-teal-dark);
+      margin-bottom: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-size: 0.8rem;
+    }
+
+    .toc ol {
+      list-style: none;
+      counter-reset: toc-counter;
+    }
+
+    .toc ol li {
+      counter-increment: toc-counter;
+      margin-bottom: 0.5rem;
+    }
+
+    .toc ol li a {
+      color: var(--abn-text);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.35rem 0;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .toc ol li a::before {
+      content: counter(toc-counter, decimal-leading-zero);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--abn-teal);
+      min-width: 1.8rem;
+    }
+
+    .toc ol li a:hover { color: var(--abn-teal); }
+
+    /* ── Section Styling ────────────────────────────────────────── */
+    .section {
+      margin-bottom: 3.5rem;
+    }
+
+    .section-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--abn-teal);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--abn-teal-dark);
+      margin-bottom: 1.5rem;
+      line-height: 1.25;
+      letter-spacing: -0.3px;
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--abn-text);
+      margin: 2rem 0 0.75rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--abn-text);
+    }
+
+    /* ── Code Blocks ────────────────────────────────────────────── */
+    pre {
+      background: var(--abn-code-bg);
+      color: var(--abn-code-text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.84rem;
+      line-height: 1.75;
+      padding: 1.4rem 1.6rem;
+      border-radius: var(--radius);
+      overflow-x: auto;
+      margin: 1rem 0 1.5rem;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    pre .comment { color: #6B7D95; }
+    pre .flag { color: #7ECFC0; }
+    pre .value { color: #F9BD20; }
+    pre .cmd { color: #81C784; }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.86em;
+      background: #EDF2F7;
+      color: var(--abn-teal-dark);
+      padding: 0.15em 0.45em;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-weight: 400;
+    }
+
+    /* ── Tables ──────────────────────────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1rem 0 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--abn-border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    thead {
+      background: var(--abn-teal-dark);
+      color: #fff;
+    }
+
+    thead th {
+      padding: 0.85rem 1.2rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      white-space: nowrap;
+    }
+
+    tbody tr { background: var(--abn-surface); }
+    tbody tr:nth-child(even) { background: #F7FAFA; }
+    tbody tr:hover { background: var(--abn-info-bg); }
+
+    tbody td {
+      padding: 0.75rem 1.2rem;
+      border-top: 1px solid var(--abn-border);
+      vertical-align: top;
+    }
+
+    tbody td code {
+      font-size: 0.82em;
+      white-space: nowrap;
+    }
+
+    /* ── Callout Boxes ──────────────────────────────────────────── */
+    .callout {
+      border-left: 4px solid;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1.1rem 1.4rem;
+      margin: 1.25rem 0;
+      font-size: 0.92rem;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .callout-info {
+      background: var(--abn-info-bg);
+      border-color: var(--abn-info-border);
+    }
+    .callout-info .callout-title { color: var(--abn-teal-dark); }
+
+    .callout-warning {
+      background: var(--abn-warn-bg);
+      border-color: var(--abn-warn-border);
+    }
+    .callout-warning .callout-title { color: #E6A817; }
+
+    .callout-error {
+      background: var(--abn-error-bg);
+      border-color: var(--abn-error-border);
+    }
+    .callout-error .callout-title { color: #C62828; }
+
+    .callout-success {
+      background: var(--abn-success-bg);
+      border-color: var(--abn-success-border);
+    }
+    .callout-success .callout-title { color: #2E7D32; }
+
+    /* ── Step Indicators ────────────────────────────────────────── */
+    .steps { margin: 1.5rem 0; }
+
+    .step {
+      display: flex;
+      gap: 1.2rem;
+      margin-bottom: 1.8rem;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      background: var(--abn-teal);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-top: 0.1rem;
+      box-shadow: 0 2px 6px rgba(0,148,136,0.3);
+    }
+
+    .step-content { flex: 1; }
+    .step-content h4 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+    .step-content p { margin-bottom: 0.5rem; }
+
+    /* ── Checklist ───────────────────────────────────────────────── */
+    .checklist {
+      list-style: none;
+      margin: 1rem 0;
+    }
+
+    .checklist li {
+      position: relative;
+      padding: 0.6rem 0 0.6rem 2.4rem;
+      border-bottom: 1px solid var(--abn-border);
+      font-size: 0.93rem;
+    }
+
+    .checklist li:last-child { border-bottom: none; }
+
+    .checklist li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.7rem;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--abn-teal);
+      border-radius: 4px;
+      background: var(--abn-surface);
+    }
+
+    /* ── Utility ─────────────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.2em 0.65em;
+      border-radius: 4px;
+      vertical-align: middle;
+    }
+
+    .badge-apex   { background: #E8EAF6; color: #283593; }
+    .badge-lwc    { background: #E0F2F1; color: #00695C; }
+    .badge-perm   { background: #FFF3E0; color: #E65100; }
+    .badge-config { background: #F3E5F5; color: #6A1B9A; }
+
+    .divider {
+      height: 1px;
+      background: var(--abn-border);
+      margin: 3rem 0;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      color: var(--abn-text-muted);
+      font-size: 0.82rem;
+      border-top: 1px solid var(--abn-border);
+      margin-top: 2rem;
+    }
+
+    .footer strong { color: var(--abn-teal-dark); }
+
+    /* ── Print Styles ───────────────────────────────────────────── */
+    @media print {
+      body { background: #fff; }
+
+      .cover {
+        min-height: auto;
+        padding: 4rem 2rem;
+        page-break-after: always;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .content { padding: 1rem 0; }
+
+      .section { page-break-inside: avoid; }
+
+      pre {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .toc { page-break-after: always; }
+
+      table { font-size: 0.85rem; }
+
+      thead {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+
+    /* ── Responsive ─────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .cover-title { font-size: 2.2rem; }
+      .cover-subtitle { font-size: 1.1rem; }
+      .cover-meta { flex-direction: column; gap: 1rem; }
+      .content { padding: 2rem 1.2rem 4rem; }
+      h2 { font-size: 1.5rem; }
+      pre { font-size: 0.78rem; padding: 1rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════════════════
+       COVER PAGE
+       ════════════════════════════════════════════════════════════ -->
+  <header class="cover">
+    <div class="cover-logo">ABN AMRO</div>
+    <h1 class="cover-title">Deployment Guide</h1>
+    <div class="cover-divider"></div>
+    <p class="cover-subtitle">ABN AMRO Salesforce Developer Tools</p>
+    <div class="cover-meta">
+      <dl>
+        <dt>Version</dt>
+        <dd>1.0</dd>
+      </dl>
+      <dl>
+        <dt>API Version</dt>
+        <dd>65.0</dd>
+      </dl>
+      <dl>
+        <dt>Last Updated</dt>
+        <dd>March 2026</dd>
+      </dl>
+      <dl>
+        <dt>Classification</dt>
+        <dd>Internal</dd>
+      </dl>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- ══════════════════════════════════════════════════════════
+         TABLE OF CONTENTS
+         ══════════════════════════════════════════════════════════ -->
+    <nav class="toc">
+      <div class="toc-title">Table of Contents</div>
+      <ol>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#package-contents">Package Contents</a></li>
+        <li><a href="#deployment-steps">Deployment Steps</a></li>
+        <li><a href="#permission-setup">Permission Setup</a></li>
+        <li><a href="#utility-bar">Adding to Utility Bar</a></li>
+        <li><a href="#verification">Post-Installation Verification</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+      </ol>
+    </nav>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 1: PREREQUISITES
+         ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="prerequisites">
+      <div class="section-number">Section 01</div>
+      <h2>Prerequisites</h2>
+      <p>Before deploying the ABN AMRO Developer Tools, ensure the following requirements are met in your environment.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Requirement</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Salesforce CLI</strong></td>
+              <td>The <code>sf</code> CLI (v2+) must be installed and authenticated to your target org. Install from <code>npm install -g @salesforce/cli</code> or the Salesforce CLI installer.</td>
+            </tr>
+            <tr>
+              <td><strong>Org Access</strong></td>
+              <td>You must have access to the target org with the <strong>System Administrator</strong> profile, or a profile with deploy permissions and Modify All Data.</td>
+            </tr>
+            <tr>
+              <td><strong>Project Structure</strong></td>
+              <td>A valid Salesforce DX project structure with <code>sfdx-project.json</code> at the root. The <code>force-app/main/default</code> directory must contain the classes and LWC source.</td>
+            </tr>
+            <tr>
+              <td><strong>API Version</strong></td>
+              <td>API version <strong>65.0</strong> or higher. Earlier versions may lack support for required metadata types or LWC features.</td>
+            </tr>
+            <tr>
+              <td><strong>Remote Site Setting</strong></td>
+              <td>The <code>SelfOrgCalloutHelper</code> class requires the org to allow callouts to itself. A Remote Site Setting pointing to the org's own instance URL must exist (used for REST cursor pagination).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">&#8505; Info</div>
+        Verify your CLI version with <code>sf version</code> and your org authentication with <code>sf org list</code>. If your target org is not listed, authenticate with <code>sf org login web --alias &lt;your-org-alias&gt;</code>.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 2: PACKAGE CONTENTS
+         ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="package-contents">
+      <div class="section-number">Section 02</div>
+      <h2>Package Contents</h2>
+      <p>The Developer Tools package includes the following metadata components.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Name</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-apex">Apex</span></td>
+              <td><code>DevToolsAccessController</code></td>
+              <td>Permission checks and access gate logic</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-apex">Apex</span></td>
+              <td><code>ApexRunnerController</code></td>
+              <td>Anonymous Apex execution and debug log retrieval</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-apex">Apex</span></td>
+              <td><code>MetadataBrowserController</code></td>
+              <td>EntityDefinition-based object listing, field describes, and object detail</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-apex">Apex</span></td>
+              <td><code>DataLoaderController</code></td>
+              <td>Bulk insert, update, upsert, and delete operations</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-apex">Apex</span></td>
+              <td><code>SOQLExplorerController</code></td>
+              <td>SOQL query execution, cursor pagination, and inline record editing</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-apex">Apex</span></td>
+              <td><code>RecordInspectorController</code></td>
+              <td>Record detail retrieval, field-level security, and record updates</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-apex">Apex</span></td>
+              <td><code>SecurityUtil</code></td>
+              <td>Shared utility for global describe caching and permission checks</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-apex">Apex</span></td>
+              <td><code>SelfOrgCalloutHelper</code></td>
+              <td>REST API callouts to the same org (cursor-based query pagination)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-lwc">LWC</span></td>
+              <td><code>devTools</code></td>
+              <td>Single Lightning Web Component (12 files) containing all four tools: Record Inspector, SOQL Explorer, Apex Runner, and Data Loader</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-perm">Permission</span></td>
+              <td><code>Dev_Tools_Access</code></td>
+              <td>Custom permission granting base access (Record Inspector)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-perm">Permission</span></td>
+              <td><code>Dev_Tools_Power</code></td>
+              <td>Custom permission granting elevated access (SOQL Explorer, Apex Runner, Data Loader)</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-perm">Permission</span></td>
+              <td><code>ABN_Dev_Tools_Admin</code></td>
+              <td>Permission set bundling both custom permissions for full admin access</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-config">Config</span></td>
+              <td>Custom Application + FlexiPage</td>
+              <td><em>Optional.</em> Pre-built Lightning app and page. See warning below.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-title">&#9888; Warning</div>
+        The Custom Application and FlexiPage XML files may contain pre-existing XML issues that cause deployment failures. It is recommended to <strong>skip these components</strong> and manually configure the utility bar instead (see <a href="#utility-bar">Section 5</a>).
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 3: DEPLOYMENT STEPS
+         ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="deployment-steps">
+      <div class="section-number">Section 03</div>
+      <h2>Deployment Steps</h2>
+      <p>Follow these steps to deploy the Developer Tools to your target Salesforce org.</p>
+
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Obtain the project source</h4>
+            <p>Clone or download the project repository to your local machine. Ensure the <code>sfdx-project.json</code> file is present at the project root.</p>
+<pre><code><span class="comment"># Clone the repository (or extract the archive)</span>
+<span class="cmd">git clone</span> &lt;repository-url&gt; abn-inspector
+<span class="cmd">cd</span> abn-inspector</code></pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Authenticate to the target org</h4>
+            <p>If you have not already authenticated, log in via the browser flow.</p>
+<pre><code><span class="cmd">sf org login web</span> <span class="flag">--alias</span> <span class="value">&lt;your-org-alias&gt;</span> <span class="flag">--instance-url</span> <span class="value">https://&lt;instance&gt;.salesforce.com</span></code></pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Deploy Apex classes and the LWC component</h4>
+            <p>Deploy only the classes and the <code>devTools</code> LWC. This avoids the FlexiPage and CustomApplication XML issues.</p>
+<pre><code><span class="cmd">sf project deploy start</span> \
+  <span class="flag">--source-dir</span> <span class="value">force-app/main/default/classes</span> \
+  <span class="flag">--source-dir</span> <span class="value">force-app/main/default/lwc/devTools</span> \
+  <span class="flag">--target-org</span> <span class="value">&lt;your-org-alias&gt;</span> \
+  <span class="flag">--wait</span> <span class="value">10</span></code></pre>
+            <div class="callout callout-warning">
+              <div class="callout-title">&#9888; Warning</div>
+              Do <strong>not</strong> deploy the entire <code>force-app</code> directory. The FlexiPage and CustomApplication metadata may fail due to pre-existing XML issues. Deploy only the <code>classes</code> and <code>lwc/devTools</code> directories as shown above.
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Deploy custom permissions and permission set</h4>
+            <p>If the custom permissions and permission set are stored in separate directories, deploy them as well.</p>
+<pre><code><span class="cmd">sf project deploy start</span> \
+  <span class="flag">--source-dir</span> <span class="value">force-app/main/default/customPermissions</span> \
+  <span class="flag">--source-dir</span> <span class="value">force-app/main/default/permissionsets</span> \
+  <span class="flag">--target-org</span> <span class="value">&lt;your-org-alias&gt;</span> \
+  <span class="flag">--wait</span> <span class="value">10</span></code></pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>Verify deployment success</h4>
+            <p>Check the most recent deployment status to confirm all components deployed without errors.</p>
+<pre><code><span class="cmd">sf project deploy report</span> <span class="flag">--use-most-recent</span></code></pre>
+            <div class="callout callout-success">
+              <div class="callout-title">&#10003; Success</div>
+              You should see <strong>"Status: Succeeded"</strong> with all components listed as deployed. If any component fails, review the error messages and refer to the <a href="#troubleshooting">Troubleshooting</a> section.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 4: PERMISSION SETUP
+         ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="permission-setup">
+      <div class="section-number">Section 04</div>
+      <h2>Permission Setup</h2>
+      <p>The Developer Tools use a two-tier permission model controlled by custom permissions. Users must be assigned the appropriate permission set to access the tools.</p>
+
+      <h3>Assign the Permission Set</h3>
+      <p>Assign the <code>ABN_Dev_Tools_Admin</code> permission set to grant full access to all four tools.</p>
+
+<pre><code><span class="cmd">sf org assign permset</span> \
+  <span class="flag">--name</span> <span class="value">ABN_Dev_Tools_Admin</span> \
+  <span class="flag">--target-org</span> <span class="value">&lt;your-org-alias&gt;</span></code></pre>
+
+      <p>To assign to a specific user other than yourself, add the <code>--on-behalf-of</code> flag:</p>
+
+<pre><code><span class="cmd">sf org assign permset</span> \
+  <span class="flag">--name</span> <span class="value">ABN_Dev_Tools_Admin</span> \
+  <span class="flag">--on-behalf-of</span> <span class="value">user@example.com</span> \
+  <span class="flag">--target-org</span> <span class="value">&lt;your-org-alias&gt;</span></code></pre>
+
+      <h3>Permission Model</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Permission</th>
+              <th>Access Level</th>
+              <th>Tools Enabled</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Dev_Tools_Access</code></td>
+              <td>Base access</td>
+              <td>Record Inspector</td>
+            </tr>
+            <tr>
+              <td><code>Dev_Tools_Power</code></td>
+              <td>Elevated access</td>
+              <td>SOQL Explorer, Apex Runner, Data Loader</td>
+            </tr>
+            <tr>
+              <td><code>ABN_Dev_Tools_Admin</code></td>
+              <td>Full access (bundles both)</td>
+              <td>All four tools</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">&#8505; Info</div>
+        You can create custom permission sets that include only <code>Dev_Tools_Access</code> for users who should have read-only Record Inspector access without the elevated SOQL, Apex, and Data Loader capabilities.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 5: ADDING TO UTILITY BAR
+         ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="utility-bar">
+      <div class="section-number">Section 05</div>
+      <h2>Adding to Utility Bar</h2>
+      <p>The Developer Tools component is designed to run as a utility bar item within any Lightning App. Follow these steps to add it.</p>
+
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Open the App Builder</h4>
+            <p>Navigate to <strong>Setup</strong> &rarr; search for <strong>"App Manager"</strong> &rarr; find your target Lightning App &rarr; click <strong>Edit</strong>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Navigate to Utility Items</h4>
+            <p>In the App Settings sidebar, click <strong>"Utility Items (Desktop Only)"</strong>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Add the component</h4>
+            <p>Click <strong>"Add Utility Item"</strong> and search for <strong>devTools</strong>. Select the <code>c:devTools</code> Lightning Web Component.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Configure the panel</h4>
+            <p>Set the following properties:</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Property</th>
+                    <th>Recommended Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Label</td>
+                    <td><code>Developer Tools</code></td>
+                  </tr>
+                  <tr>
+                    <td>Icon</td>
+                    <td><code>utility:setup</code> or <code>utility:inspector_panel</code></td>
+                  </tr>
+                  <tr>
+                    <td>Panel Width</td>
+                    <td><code>480</code> (px)</td>
+                  </tr>
+                  <tr>
+                    <td>Panel Height</td>
+                    <td><code>600</code> (px)</td>
+                  </tr>
+                  <tr>
+                    <td>Start Automatically</td>
+                    <td>Unchecked</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>Save and activate</h4>
+            <p>Click <strong>Save</strong>. If prompted, activate the app for the appropriate profiles. The Developer Tools icon will now appear in the utility bar at the bottom of the screen.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 6: POST-INSTALLATION VERIFICATION
+         ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="verification">
+      <div class="section-number">Section 06</div>
+      <h2>Post-Installation Verification</h2>
+      <p>After deployment and configuration, run through the following checklist to confirm everything is working correctly.</p>
+
+      <ul class="checklist">
+        <li><strong>Component loads in utility bar</strong> &mdash; Click the Developer Tools icon in the utility bar. The panel should open and display the tool navigation tabs.</li>
+        <li><strong>Access control works</strong> &mdash; As a user <em>without</em> the permission set, the component should display an "Access Restricted" message and block all functionality.</li>
+        <li><strong>Record Inspector</strong> &mdash; Paste any valid 15- or 18-character Record ID. The inspector should load the record's fields, values, and metadata.</li>
+        <li><strong>SOQL Explorer</strong> &mdash; Run a simple query:
+          <pre><code>SELECT Id, Name FROM Account LIMIT 5</code></pre>
+          Results should appear in a tabular format with column headers.
+        </li>
+        <li><strong>Apex Runner</strong> &mdash; Execute a basic anonymous Apex snippet:
+          <pre><code>System.debug('Hello World');</code></pre>
+          The debug log output should appear in the results panel.
+        </li>
+        <li><strong>Data Loader</strong> &mdash; Navigate to the Data Loader tab. The interface should be visible and functional (object selection, CSV upload area, operation selector).</li>
+      </ul>
+
+      <div class="callout callout-success">
+        <div class="callout-title">&#10003; All checks passed</div>
+        If all items above are confirmed, the deployment is complete. The ABN AMRO Developer Tools are ready for use.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 7: TROUBLESHOOTING
+         ══════════════════════════════════════════════════════════ -->
+    <section class="section" id="troubleshooting">
+      <div class="section-number">Section 07</div>
+      <h2>Troubleshooting</h2>
+      <p>Common issues encountered during or after deployment, with their solutions.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 35%;">Problem</th>
+              <th>Solution</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Deployment fails with FlexiPage or CustomApplication errors</strong></td>
+              <td>Do not deploy the full <code>force-app</code> directory. Deploy only the <code>classes</code> and <code>lwc/devTools</code> subdirectories as described in <a href="#deployment-steps">Section 3</a>. These XML files have known pre-existing issues.</td>
+            </tr>
+            <tr>
+              <td><strong>"Access Restricted" shown for permissioned user</strong></td>
+              <td>Verify the permission set assignment: <code>sf org assign permset --name ABN_Dev_Tools_Admin --target-org &lt;alias&gt;</code>. Ensure both <code>Dev_Tools_Access</code> and <code>Dev_Tools_Power</code> custom permissions are included in the set. The user may need to log out and log back in.</td>
+            </tr>
+            <tr>
+              <td><strong>Component not appearing in utility bar</strong></td>
+              <td>Confirm the Lightning App was saved and activated after adding the utility item. Check that the user's profile is assigned to the app. Clear the browser cache or try an incognito window.</td>
+            </tr>
+            <tr>
+              <td><strong>SOQL queries fail or return no results</strong></td>
+              <td>Ensure the running user has object-level and field-level read permissions for the queried object. Check that the API version in <code>sfdx-project.json</code> matches the deployed version.</td>
+            </tr>
+            <tr>
+              <td><strong>Apex Runner returns "Compile Error"</strong></td>
+              <td>This indicates a syntax error in the anonymous Apex code, not a deployment issue. Review the code and try again. The error message will include the line and column number.</td>
+            </tr>
+            <tr>
+              <td><strong>Cursor pagination / REST queries fail</strong></td>
+              <td>The <code>SelfOrgCalloutHelper</code> class makes HTTP callouts to the org's own REST API. Ensure a <strong>Remote Site Setting</strong> exists for your org's instance URL (e.g., <code>https://&lt;instance&gt;.my.salesforce.com</code>). Also check that the running user has API Enabled permission.</td>
+            </tr>
+            <tr>
+              <td><strong>Data Loader operations timeout</strong></td>
+              <td>Large data volumes may exceed governor limits. Reduce batch sizes or split CSV files into smaller chunks. The Data Loader processes records in batches to stay within Apex limits.</td>
+            </tr>
+            <tr>
+              <td><strong>Debug log not appearing in Apex Runner</strong></td>
+              <td>The tool creates a trace flag for the running user. If trace flags are at capacity (max 20 per org), delete old trace flags from <strong>Setup &rarr; Debug Logs</strong>. The tool caches the trace flag once per session.</td>
+            </tr>
+            <tr>
+              <td><strong><code>sf org login web</code> fails or times out</strong></td>
+              <td>Ensure you are on a network that allows browser redirects to Salesforce. Try specifying the instance URL explicitly with <code>--instance-url</code>. For sandboxes, use <code>https://test.salesforce.com</code>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">&#8505; Need help?</div>
+        If you encounter an issue not listed above, check the browser developer console (F12) for JavaScript errors, and the Salesforce debug logs for Apex exceptions. Both sources will provide detailed error context.
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         FOOTER
+         ══════════════════════════════════════════════════════════ -->
+    <footer class="footer">
+      <strong>ABN AMRO</strong> &middot; Salesforce Developer Tools &middot; Deployment Guide v1.0<br>
+      Internal use only &middot; March 2026
+    </footer>
+
+  </main>
+
+</body>
+</html>

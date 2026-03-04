@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Full access to all ABN AMRO Developer Tools features. Assign to Salesforce administrators who need developer-level tooling access.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>ABN Dev Tools Admin</label>
+    <classAccesses>
+        <apexClass>SOQLExplorerController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>RecordInspectorController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ApexRunnerController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>DataLoaderController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>DevToolsAccessController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>SecurityUtil</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>SelfOrgCalloutHelper</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>Dev_Tools_Access</name>
+    </customPermissions>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>Dev_Tools_Power</name>
+    </customPermissions>
+    <pageAccesses>
+        <apexPage>DevToolsSessionId</apexPage>
+        <enabled>true</enabled>
+    </pageAccesses>
+</PermissionSet>

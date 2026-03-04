@@ -1,0 +1,1195 @@
+<template>
+    <!-- ═══════════════════════════════════════════
+         LOADING STATE
+         ═══════════════════════════════════════════ -->
+    <template if:true={_isLoading}>
+        <div class="abn-container">
+            <div class="abn-empty-state" style="height:100%">
+                <div class="abn-spinner abn-spinner--lg"></div>
+                <p class="abn-text-sm abn-text-muted abn-mt-md">Loading Developer Tools...</p>
+            </div>
+        </div>
+    </template>
+
+    <!-- ═══════════════════════════════════════════
+         ACCESS DENIED
+         ═══════════════════════════════════════════ -->
+    <template if:true={_showAccessDenied}>
+        <div class="abn-access-denied">
+            <div class="abn-access-denied__icon">&#x1F512;</div>
+            <div class="abn-access-denied__title">Access Restricted</div>
+            <p class="abn-text-sm abn-text-muted">You need the Dev_Tools_Access custom permission to use this tool.<br/>Contact your Salesforce administrator.</p>
+        </div>
+    </template>
+
+    <!-- ═══════════════════════════════════════════
+         MAIN APPLICATION
+         ═══════════════════════════════════════════ -->
+    <template if:true={_hasAccess}>
+        <div class={containerClass}>
+
+            <!-- ─── TOAST ─── -->
+            <template if:true={_toast}>
+                <div class={toastClass} role="alert" aria-live="polite">
+                    <span class={toastDotClass}></span>
+                    <span>{_toast.message}</span>
+                    <button class="abn-btn abn-btn--ghost abn-btn--sm" onclick={handleDismissToast} aria-label="Dismiss">&times;</button>
+                </div>
+            </template>
+
+            <!-- ─── HEADER ─── -->
+            <header class="abn-header">
+                <div class="abn-header__brand">
+                    <span class="abn-header__wordmark">ABN AMRO</span>
+                    <span class="abn-header__divider"></span>
+                    <span class="abn-header__title">Developer Tools</span>
+                </div>
+                <div class="abn-header__actions">
+                    <button class="abn-btn abn-btn--ghost abn-btn--icon" onclick={handleToggleTheme} title="Toggle theme" aria-label="Toggle light/dark theme">
+                        <lightning-icon icon-name={_themeIcon} size="xx-small" alternative-text="Toggle theme"></lightning-icon>
+                    </button>
+                    <button class="abn-btn abn-btn--ghost abn-btn--icon" onclick={handleShowPreferences} title="Preferences" aria-label="Open preferences">
+                        <lightning-icon icon-name="utility:settings" size="xx-small" alternative-text="Preferences"></lightning-icon>
+                    </button>
+                </div>
+            </header>
+
+            <!-- ─── MODULE TABS ─── -->
+            <nav class="abn-tabs" role="tablist" aria-label="Developer tool modules">
+                <template for:each={_moduleList} for:item="mod">
+                    <button key={mod.id}
+                        class={mod.tabClass}
+                        role="tab"
+                        aria-selected={mod.isActive}
+                        aria-controls={mod.panelId}
+                        data-tab={mod.id}
+                        onclick={handleTabClick}>
+                        <span class="abn-tab__icon">
+                            <lightning-icon icon-name={mod.icon} size="xx-small" alternative-text={mod.label}></lightning-icon>
+                        </span>
+                        {mod.label}
+                    </button>
+                </template>
+            </nav>
+
+            <!-- ─── CONTENT ─── -->
+            <div class="abn-content">
+
+                <!-- ═══════════════════════════════════════
+                     RECORD INSPECTOR
+                     ═══════════════════════════════════════ -->
+                <div class={riPanelClass} role="tabpanel" id="panel-recordInspector" aria-labelledby="tab-recordInspector">
+
+                    <!-- RI Tabs -->
+                    <div class="abn-query-tabs">
+                        <template for:each={_riTabs} for:item="rt">
+                            <button key={rt.id} class={rt.tabClass} data-id={rt.id} onclick={handleSwitchRiTab}>
+                                {rt.label}
+                                <template if:true={rt.canClose}>
+                                    <span class="abn-query-tab__close" data-id={rt.id} onclick={handleCloseRiTab}>&times;</span>
+                                </template>
+                            </button>
+                        </template>
+                        <template if:true={_canAddRiTab}>
+                            <button class="abn-query-tab abn-query-tab--add" onclick={handleAddRiTab} title="New inspector tab">+</button>
+                        </template>
+                    </div>
+
+                    <!-- Record ID Input -->
+                    <div class="abn-flex abn-gap-sm abn-items-center">
+                        <input type="text"
+                            class="abn-input abn-input--mono abn-flex-1"
+                            placeholder="Enter a Record ID (e.g. 001xx000003GYJKAA4)"
+                            value={_riRecordId}
+                            oninput={handleRiIdInput}
+                            onkeydown={handleRiIdKeydown}
+                            aria-label="Record ID"/>
+                        <button class="abn-btn abn-btn--primary" onclick={handleInspectRecord} disabled={_riIsLoading}>
+                            <template if:true={_riIsLoading}><span class="abn-spinner"></span></template>
+                            Inspect
+                        </button>
+                        <button class="abn-btn" onclick={handleRiClear}>Clear</button>
+                    </div>
+
+                    <!-- Record Header -->
+                    <template if:true={_riRecord}>
+                        <div class="abn-ri-header abn-surface">
+                            <div class="abn-flex abn-items-center abn-justify-between">
+                                <div>
+                                    <span class="abn-badge abn-badge--blue">{_riRecord.objectLabel}</span>
+                                    <span class="abn-ri-header__title abn-ml-sm">{_riRecord.recordName}</span>
+                                </div>
+                                <div class="abn-flex abn-gap-sm">
+                                    <button class="abn-btn abn-btn--sm" onclick={handleRiCopySOQL} title="Copy SOQL for visible fields">Copy SOQL</button>
+                                    <button class="abn-btn abn-btn--sm" onclick={handleRiOpenInSF} title="Open in Salesforce">Open in SF</button>
+                                    <template if:false={_riEditMode}>
+                                        <button class="abn-btn abn-btn--sm" onclick={handleRiToggleEdit}>Edit</button>
+                                    </template>
+                                    <template if:true={_riEditMode}>
+                                        <button class="abn-btn abn-btn--primary abn-btn--sm" onclick={handleRiSaveEdits} disabled={_riSaving}>
+                                            <template if:true={_riSaving}><span class="abn-spinner"></span></template>
+                                            Save
+                                        </button>
+                                        <button class="abn-btn abn-btn--sm" onclick={handleRiCancelEdit}>Cancel</button>
+                                    </template>
+                                    <button class="abn-btn abn-btn--danger abn-btn--sm" onclick={handleRiDelete}>Delete</button>
+                                    <button class="abn-btn abn-btn--ghost abn-btn--sm" onclick={handleInspectRecord}>&#x21BB;</button>
+                                </div>
+                            </div>
+                            <div class="abn-ri-header__meta">
+                                <span>ID: <span class="abn-text-mono">{_riRecord.recordId}</span></span>
+                                <span>Created: {_riRecord.createdDate} by {_riRecord.createdByName}</span>
+                                <span>Modified: {_riRecord.lastModifiedDate}</span>
+                                <span>{_riRecord.fieldCount} fields</span>
+                            </div>
+                        </div>
+
+                        <!-- View Toggle -->
+                        <div class="abn-flex abn-items-center abn-justify-between">
+                            <div class="abn-ri-views">
+                                <button class={riFieldsViewClass} data-view="fields" onclick={handleRiViewChange}>Fields</button>
+                                <button class={riRelatedViewClass} data-view="related" onclick={handleRiViewChange}>Related Lists</button>
+                                <button class={riHistoryViewClass} data-view="history" onclick={handleRiViewChange}>History</button>
+                            </div>
+
+                            <!-- Filters (Fields view only) -->
+                            <template if:true={_riShowFieldsView}>
+                                <div class="abn-ri-filters">
+                                    <input type="text" class="abn-input abn-btn--sm" style="width:180px" placeholder="Search fields..."
+                                        value={_riFieldSearch} oninput={handleRiFieldSearch} aria-label="Search fields"/>
+                                    <select class="abn-select" value={_riFieldFilter} onchange={handleRiFieldFilter} aria-label="Filter field type">
+                                        <option value="all">All Fields</option>
+                                        <option value="standard">Standard</option>
+                                        <option value="custom">Custom</option>
+                                        <option value="updateable">Updateable</option>
+                                        <option value="required">Required</option>
+                                    </select>
+                                    <label class="abn-flex abn-items-center abn-gap-xs abn-text-xs">
+                                        <input type="checkbox" checked={_riPopulatedOnly} onchange={handleRiPopulatedToggle}/>
+                                        Populated only
+                                    </label>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Fields View -->
+                        <template if:true={_riShowFieldsView}>
+                            <div class="abn-ri-fields-wrap">
+                                <table class="abn-field-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Label</th>
+                                            <th>API Name</th>
+                                            <th>Type</th>
+                                            <th>Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={_riFilteredFields} for:item="field">
+                                            <tr key={field.apiName}>
+                                                <td>{field.label}</td>
+                                                <td class="abn-text-mono abn-text-xs">{field.apiName}</td>
+                                                <td><span class={field.badgeClass}>{field.type}</span></td>
+                                                <td>
+                                                    <template if:true={field.isEditing}>
+                                                        <!-- Picklist → select dropdown -->
+                                                        <template if:true={field.isPicklist}>
+                                                            <select class="abn-inline-select" data-field={field.apiName} onchange={handleRiDraftChange}>
+                                                                <option value="">--None--</option>
+                                                                <template for:each={field.picklistOptions} for:item="opt">
+                                                                    <option key={opt.value} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                                                                </template>
+                                                            </select>
+                                                        </template>
+                                                        <!-- Boolean → checkbox -->
+                                                        <template if:true={field.isBoolean}>
+                                                            <input type="checkbox" class="abn-inline-checkbox"
+                                                                data-field={field.apiName} checked={field.draftBooleanValue} onchange={handleRiDraftChange}/>
+                                                        </template>
+                                                        <!-- Date → date picker -->
+                                                        <template if:true={field.isDate}>
+                                                            <input type="date" class="abn-inline-input"
+                                                                data-field={field.apiName} value={field.draftDateValue} onchange={handleRiDraftChange}/>
+                                                        </template>
+                                                        <!-- DateTime → datetime-local picker -->
+                                                        <template if:true={field.isDateTime}>
+                                                            <input type="datetime-local" class="abn-inline-input"
+                                                                data-field={field.apiName} value={field.draftDateTimeValue} onchange={handleRiDraftChange}/>
+                                                        </template>
+                                                        <!-- Number → number input -->
+                                                        <template if:true={field.isNumber}>
+                                                            <input type="number" class="abn-inline-input"
+                                                                data-field={field.apiName} value={field.draftValue} step="any" onchange={handleRiDraftChange}/>
+                                                        </template>
+                                                        <!-- Textarea → textarea -->
+                                                        <template if:true={field.isTextarea}>
+                                                            <textarea class="abn-inline-textarea"
+                                                                data-field={field.apiName} oninput={handleRiDraftChange}>{field.draftValue}</textarea>
+                                                        </template>
+                                                        <!-- Text (default) → text input -->
+                                                        <template if:true={field.isText}>
+                                                            <input type="text" class="abn-inline-input"
+                                                                data-field={field.apiName} value={field.draftValue} oninput={handleRiDraftChange}/>
+                                                        </template>
+                                                    </template>
+                                                    <template if:false={field.isEditing}>
+                                                        <template if:true={field.hasValue}>
+                                                            <span class="abn-field-table__value">{field.displayValue}</span>
+                                                        </template>
+                                                        <template if:false={field.hasValue}>
+                                                            <span class="abn-field-table__value abn-field-table__value--empty">null</span>
+                                                        </template>
+                                                    </template>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </template>
+
+                        <!-- Related Lists View -->
+                        <template if:true={_riShowRelatedView}>
+                            <template if:true={_riRelatedLoading}>
+                                <div class="abn-empty-state"><span class="abn-spinner"></span><p class="abn-text-sm abn-mt-sm">Loading related lists...</p></div>
+                            </template>
+                            <template if:false={_riRelatedLoading}>
+                                <template if:true={_riHasRelated}>
+                                    <template for:each={_riRelatedLists} for:item="rel">
+                                        <div key={rel.relationshipName} class="abn-history__item" onclick={handleRiRelatedClick} data-object={rel.childObjectApiName} data-field={rel.fieldName} data-relationship={rel.relationshipName}>
+                                            <span class="abn-badge abn-badge--blue">{rel.childObjectLabel}</span>
+                                            <span class="abn-text-xs abn-text-muted">{rel.relationshipName}</span>
+                                            <template if:true={rel.recordCount}>
+                                                <span class="abn-text-xs abn-text-success">has records</span>
+                                            </template>
+                                            <template if:false={rel.recordCount}>
+                                                <span class="abn-text-xs abn-text-muted">empty</span>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </template>
+                                <template if:false={_riHasRelated}>
+                                    <div class="abn-empty-state"><p class="abn-text-sm">No related lists found.</p></div>
+                                </template>
+                            </template>
+                        </template>
+
+                        <!-- History View -->
+                        <template if:true={_riShowHistoryView}>
+                            <template if:true={_riHistoryLoading}>
+                                <div class="abn-empty-state"><span class="abn-spinner"></span><p class="abn-text-sm abn-mt-sm">Loading field history...</p></div>
+                            </template>
+                            <template if:false={_riHistoryLoading}>
+                                <template if:true={_riHasHistory}>
+                                    <div class="abn-results__table-wrap" style="max-height:300px">
+                                        <table class="abn-field-table">
+                                            <thead><tr><th>Date</th><th>Field</th><th>Old Value</th><th>New Value</th><th>User</th></tr></thead>
+                                            <tbody>
+                                                <template for:each={_riHistory} for:item="hist">
+                                                    <tr key={hist.id}>
+                                                        <td class="abn-text-xs">{hist.date}</td>
+                                                        <td>{hist.fieldLabel}</td>
+                                                        <td class="abn-field-table__value">{hist.oldDisplayValue}</td>
+                                                        <td class="abn-field-table__value">{hist.newDisplayValue}</td>
+                                                        <td class="abn-text-xs">{hist.userName}</td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </template>
+                                <template if:false={_riHasHistory}>
+                                    <div class="abn-empty-state"><p class="abn-text-sm">No field history tracking enabled for this object.</p></div>
+                                </template>
+                            </template>
+                        </template>
+                    </template>
+
+                    <!-- Empty state when no record loaded -->
+                    <template if:false={_riRecord}>
+                        <template if:false={_riIsLoading}>
+                            <div class="abn-empty-state" style="flex:1">
+                                <div class="abn-empty-state__icon">&#x1F50D;</div>
+                                <p class="abn-empty-state__text">Enter a Record ID above to inspect its fields, related lists, and history.</p>
+                            </div>
+                        </template>
+                    </template>
+                </div>
+
+
+                <!-- ═══════════════════════════════════════
+                     SOQL EXPLORER
+                     ═══════════════════════════════════════ -->
+                <div class={soqlPanelClass} role="tabpanel" id="panel-soqlExplorer" aria-labelledby="tab-soqlExplorer">
+
+                    <!-- Saved Query Chips -->
+                    <template if:true={_hasSavedQueries}>
+                        <div class="abn-chips abn-chips--scroll">
+                            <span class="abn-chips__label">Saved</span>
+                            <template for:each={_savedQueries} for:item="sq">
+                                <button key={sq.id} class="abn-chip abn-chip--saved" data-id={sq.id} onclick={handleLoadSavedQuery} title={sq.query}>
+                                    {sq.name}
+                                    <span class="abn-chip__remove" data-id={sq.id} onclick={handleDeleteSavedQuery}>&times;</span>
+                                </button>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Query Tabs (above editor) -->
+                    <div class="abn-flex abn-items-center abn-gap-sm">
+                        <div class="abn-query-tabs">
+                            <template for:each={_queryTabs} for:item="qt">
+                                <button key={qt.id}
+                                    class={qt.tabClass}
+                                    data-id={qt.id}
+                                    onclick={handleSwitchQueryTab}>
+                                    {qt.label}
+                                    <template if:true={qt.canClose}>
+                                        <span class="abn-query-tab__close" data-id={qt.id} onclick={handleCloseQueryTab}>&times;</span>
+                                    </template>
+                                </button>
+                            </template>
+                            <template if:true={_canAddTab}>
+                                <button class="abn-query-tab abn-query-tab--add" onclick={handleAddQueryTab} title="New query tab">+</button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Selected Fields (removable chips above editor) -->
+                    <div class="abn-selected-fields">
+                        <template if:true={_hasSelectedFields}>
+                            <span class="abn-chips__label">SELECT</span>
+                            <template for:each={_selectedFieldChips} for:item="sf">
+                                <span key={sf.apiName} class="abn-chip abn-chip--selected">
+                                    <span class="abn-chip__icon">{sf.typeIcon}</span>
+                                    {sf.apiName}
+                                    <button class="abn-chip__remove" data-field={sf.apiName} onclick={handleRemoveFieldChip} aria-label={sf.removeLabel}>&times;</button>
+                                </span>
+                            </template>
+                        </template>
+                    </div>
+
+                    <!-- SOQL Editor (overlay textarea pattern) -->
+                    <div class="abn-editor-wrapper" style={editorWrapperStyle}>
+                        <div class="abn-editor-container" style={editorContainerStyle}>
+                            <!-- Syntax highlight layer -->
+                            <pre class="abn-editor-highlight" aria-hidden="true"><code lwc:dom="manual"></code></pre>
+                            <!-- Input layer -->
+                            <textarea class="abn-editor-input"
+                                oninput={handleSoqlInput}
+                                onkeydown={handleSoqlKeydown}
+                                onscroll={handleSoqlScroll}
+                                onclick={handleSoqlClick}
+                                onfocus={handleSoqlFocus}
+                                onblur={handleSoqlBlur}
+                                spellcheck="false"
+                                autocomplete="off"
+                                autocorrect="off"
+                                autocapitalize="off"
+                                role="textbox"
+                                aria-multiline="true"
+                                aria-label="SOQL query editor. Press Ctrl+Space for autocomplete."
+                                aria-controls="soql-autocomplete"
+                                aria-activedescendant={_activeAutocompleteId}></textarea>
+                        </div>
+                        <!-- Editor status bar -->
+                        <div class="abn-editor-status">
+                            <span>
+                                <template if:true={_detectedObjectName}>Object: <strong>{_detectedObjectName}</strong></template>
+                                <template if:false={_detectedObjectName}>Type a query...</template>
+                            </span>
+                            <span>Ctrl+Enter to execute &middot; Ctrl+Space for autocomplete</span>
+                        </div>
+                    </div>
+
+                    <!-- SOQL IntelliSense Autocomplete Suggestions (chip-style) -->
+                    <template if:true={_showAutocomplete}>
+                        <div class="abn-soql-suggestions" id="soql-autocomplete">
+                            <div class="abn-soql-suggestions-header">
+                                <span class="abn-soql-suggestions-type">{_autocompleteTypeLabel}</span>
+                                <span class="abn-soql-suggestions-hint">&uarr;&darr; navigate &middot; Enter select &middot; Esc dismiss</span>
+                            </div>
+                            <div class="abn-soql-suggestions-chips">
+                                <template for:each={_autocompleteSuggestions} for:item="sug">
+                                    <button key={sug.id}
+                                        class={sug.chipClass}
+                                        data-index={sug.index}
+                                        data-value={sug.value}
+                                        onmousedown={handleSelectSuggestion}
+                                        onmouseenter={handleSuggestionHover}
+                                        title={sug.chipTitle}>
+                                        <span class="abn-suggestion-icon">{sug.icon}</span>
+                                        <span class="abn-suggestion-value">{sug.value}</span>
+                                        <template if:true={sug.sublabel}>
+                                            <span class="abn-suggestion-label">{sug.sublabel}</span>
+                                        </template>
+                                        <template if:true={sug.isRelationship}>
+                                            <span class="abn-suggestion-traversable">&rarr;</span>
+                                        </template>
+                                    </button>
+                                </template>
+                            </div>
+                            <template if:true={_suggestionsMoreCount}>
+                                <div class="abn-soql-suggestions-more">+{_suggestionsMoreCount} more matches</div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Available Field Chips (below editor) -->
+                    <template if:true={_showFieldChips}>
+                        <div class="abn-field-chips-container">
+                            <div class="abn-field-chips-label">Available Fields</div>
+                            <div class="abn-field-chips">
+                                <template for:each={_visibleFieldChips} for:item="fc">
+                                    <button key={fc.apiName}
+                                        class={fc.chipClass}
+                                        data-field={fc.apiName}
+                                        onclick={handleFieldChipClick}
+                                        title={fc.chipTitle}>
+                                        <span>{fc.apiName}</span>
+                                        <template if:true={fc.type}>
+                                            <span class="abn-field-chip-type" style={fc.typeBadgeStyle}>{fc.type}</span>
+                                        </template>
+                                    </button>
+                                </template>
+                                <template if:true={_hasMoreFields}>
+                                    <span class="abn-field-chips-more">+{_moreFieldsCount} more</span>
+                                </template>
+                                <template if:true={_fieldChipsLoading}>
+                                    <span class="abn-spinner"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Object Quick-Pick Chips (only when searching or no object detected) -->
+                    <template if:true={_showObjectChips}>
+                        <div class="abn-object-chips-container">
+                            <div class="abn-object-chips-label">Objects</div>
+                            <div class="abn-object-chips">
+                                <input type="text"
+                                    class="abn-chips__filter"
+                                    placeholder="Search objects..."
+                                    value={_objectSearchTerm}
+                                    oninput={handleObjectSearchInput}
+                                    aria-label="Search for Salesforce objects"/>
+                                <template for:each={_objectChips} for:item="oc">
+                                    <button key={oc.apiName}
+                                        class={oc.chipClass}
+                                        data-object={oc.apiName}
+                                        onclick={handleObjectChipClick}
+                                        title={oc.chipTitle}>
+                                        <span>{oc.displayName}</span>
+                                        <template if:true={oc.isCustom}>
+                                            <span class="abn-object-chip-badge">Custom</span>
+                                        </template>
+                                    </button>
+                                </template>
+                                <template if:true={_objectChipsLoading}>
+                                    <span class="abn-spinner"></span>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Action Bar -->
+                    <div class="abn-action-bar">
+                        <button class="abn-btn abn-btn--primary" onclick={handleExecuteQuery} disabled={_isQueryExecuting}>
+                            <template if:true={_isQueryExecuting}><span class="abn-spinner"></span></template>
+                            Execute
+                        </button>
+                        <button class="abn-btn" onclick={handleQueryPlan}>Plan</button>
+                        <button class="abn-btn" onclick={handleToggleChart} disabled={_noResults}>Chart</button>
+                        <button class="abn-btn" onclick={handleExportCSV} disabled={_noResults}>Export</button>
+                        <div class="abn-action-bar__spacer"></div>
+                        <button class="abn-btn abn-btn--ghost" onclick={handleToggleHistory}>History</button>
+                        <button class="abn-btn abn-btn--ghost" onclick={handleShowSaveDialog}>Save</button>
+                    </div>
+
+                    <!-- Query Results -->
+                    <template if:true={_currentTabHasResults}>
+                        <div class="abn-results">
+                            <div class="abn-results__header">
+                                <span>
+                                    <span class="abn-results__count">{_currentTabResultCount}</span> records
+                                    <span class="abn-results__time"> &middot; {_currentTabExecTime}ms</span>
+                                </span>
+                                <div class="abn-flex abn-gap-sm">
+                                    <template if:true={_hasSelectedRows}>
+                                        <button class="abn-btn abn-btn--danger abn-btn--sm" onclick={handleBulkDelete}>Delete Selected ({_selectedRowCount})</button>
+                                    </template>
+                                    <template if:true={_hasDraftValues}>
+                                        <button class="abn-btn abn-btn--primary abn-btn--sm" onclick={handleSaveInlineEdits} disabled={_soqlInlineSaving}>
+                                            <template if:true={_soqlInlineSaving}><span class="abn-spinner"></span></template>
+                                            Save Edits
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="abn-results__table-wrap">
+                                <lightning-datatable
+                                    key-field="Id"
+                                    data={_currentTabResults}
+                                    columns={_currentTabColumns}
+                                    show-row-number-column={_showRowNumbers}
+                                    onrowselection={handleRowSelection}
+                                    onrowaction={handleRowAction}
+                                    onsave={handleInlineEditSave}
+                                    draft-values={_draftValues}
+                                    hide-checkbox-column={_hideCheckboxColumn}
+                                    suppress-bottom-bar
+                                ></lightning-datatable>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- No Results / Error -->
+                    <template if:true={_currentTabError}>
+                        <div class="abn-apex-result" style="border-left:3px solid var(--abn-error)">
+                            <div class="abn-apex-result__status">
+                                <span class="abn-status-dot abn-status-dot--error"></span>
+                                Error
+                            </div>
+                            <pre class="abn-apex-result__output" style="color:var(--abn-error)">{_currentTabError}</pre>
+                        </div>
+                    </template>
+
+                    <!-- Query History (collapsible) -->
+                    <template if:true={_showHistory}>
+                        <div class="abn-history">
+                            <div class="abn-history__header">
+                                <span>Query History</span>
+                                <button class="abn-btn abn-btn--ghost abn-btn--sm" onclick={handleClearHistory}>Clear</button>
+                            </div>
+                            <div class="abn-history__list">
+                                <template if:true={_hasQueryHistory}>
+                                    <template for:each={_queryHistory} for:item="h">
+                                        <div key={h.id} class="abn-history__item" data-id={h.id} onclick={handleLoadHistoryQuery}>
+                                            <span class="abn-history__query">{h.query}</span>
+                                            <div class="abn-history__meta">
+                                                <span>{h.rowCount} rows</span>
+                                                <span>{h.executionTime}ms</span>
+                                                <span>{h.relativeTime}</span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </template>
+                                <template if:false={_hasQueryHistory}>
+                                    <div class="abn-empty-state" style="padding:16px"><p class="abn-text-xs">No history yet.</p></div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Query Plan Modal -->
+                    <template if:true={_showQueryPlan}>
+                        <div class="abn-modal-backdrop" onclick={handleCloseQueryPlan}>
+                            <div class="abn-modal" onclick={handleModalStopProp}>
+                                <div class="abn-modal__header">
+                                    <span class="abn-modal__title">Query Plan</span>
+                                    <button class="abn-btn abn-btn--ghost abn-btn--icon" onclick={handleCloseQueryPlan}>&times;</button>
+                                </div>
+                                <div class="abn-modal__body">
+                                    <template if:true={_queryPlanLoading}>
+                                        <div class="abn-empty-state"><span class="abn-spinner"></span></div>
+                                    </template>
+                                    <template if:false={_queryPlanLoading}>
+                                        <pre class="abn-text-mono abn-text-xs" style="white-space:pre-wrap">{_queryPlanJson}</pre>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Save Query Dialog -->
+                    <template if:true={_showSaveDialog}>
+                        <div class="abn-modal-backdrop" onclick={handleCloseSaveDialog}>
+                            <div class="abn-modal" onclick={handleModalStopProp}>
+                                <div class="abn-modal__header">
+                                    <span class="abn-modal__title">Save Query</span>
+                                    <button class="abn-btn abn-btn--ghost abn-btn--icon" onclick={handleCloseSaveDialog}>&times;</button>
+                                </div>
+                                <div class="abn-modal__body">
+                                    <label class="abn-form-label abn-mb-sm">Query Name</label>
+                                    <input type="text" class="abn-input" placeholder="e.g. Active Accounts" value={_saveQueryName} oninput={handleSaveQueryNameInput}/>
+                                </div>
+                                <div class="abn-modal__footer">
+                                    <button class="abn-btn" onclick={handleCloseSaveDialog}>Cancel</button>
+                                    <button class="abn-btn abn-btn--primary" onclick={handleConfirmSaveQuery} disabled={_saveQueryNameEmpty}>Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+
+                <!-- ═══════════════════════════════════════
+                     APEX RUNNER
+                     ═══════════════════════════════════════ -->
+                <div class={apexPanelClass} role="tabpanel" id="panel-apexRunner" aria-labelledby="tab-apexRunner">
+
+                    <!-- Snippet Chips -->
+                    <div class="abn-chips abn-chips--scroll">
+                        <span class="abn-chips__label">Snippets</span>
+                        <template for:each={_apexSnippets} for:item="snip">
+                            <button key={snip.label} class="abn-chip abn-chip--snippet" data-label={snip.label} onclick={handleInsertSnippet}>
+                                {snip.label}
+                            </button>
+                        </template>
+                    </div>
+
+                    <!-- Apex Code Editor -->
+                    <div class="abn-editor-wrapper">
+                        <div class="abn-apex-editor">
+                            <textarea class="abn-editor-input"
+                                style="position:relative;min-height:200px;max-height:400px;color:var(--abn-text-primary);-webkit-text-fill-color:var(--abn-text-primary);font-family:var(--abn-font-family-mono);font-size:var(--abn-editor-font-size);line-height:var(--abn-editor-line-height);padding:var(--abn-space-3);background:var(--abn-bg-input);resize:vertical;white-space:pre-wrap;tab-size:4;border:none;outline:none;width:100%;box-sizing:border-box;"
+                                oninput={handleApexInput}
+                                onkeydown={handleApexKeydown}
+                                spellcheck="false"
+                                placeholder="// Write anonymous Apex here...&#10;System.debug('Hello World');"
+                                value={_apexCode}
+                                aria-label="Anonymous Apex editor. Press Ctrl+Enter to execute."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Apex Action Bar -->
+                    <div class="abn-action-bar">
+                        <button class="abn-btn abn-btn--primary" onclick={handleExecuteApex} disabled={_apexExecuting}>
+                            <template if:true={_apexExecuting}><span class="abn-spinner"></span></template>
+                            Execute Anonymous
+                        </button>
+                        <button class="abn-btn" onclick={handleClearApexEditor}>Clear</button>
+                        <div class="abn-action-bar__spacer"></div>
+                        <button class="abn-btn abn-btn--ghost" onclick={handleToggleApexLogs}>Event Logs</button>
+                    </div>
+
+                    <!-- Apex Result -->
+                    <template if:true={_apexResult}>
+                        <div class="abn-apex-result" style={apexResultBorderStyle}>
+                            <div class="abn-apex-result__status">
+                                <span class={apexStatusDotClass}></span>
+                                <template if:true={_apexResult.success}>
+                                    Success <span class="abn-text-muted abn-text-xs">({_apexResult.durationMs}ms)</span>
+                                </template>
+                                <template if:false={_apexResult.success}>
+                                    <template if:true={_apexResult.compileProblem}>
+                                        Compile Error
+                                    </template>
+                                    <template if:false={_apexResult.compileProblem}>
+                                        Runtime Error
+                                    </template>
+                                </template>
+                            </div>
+                            <template if:true={_apexResult.compileProblem}>
+                                <pre class="abn-apex-result__output" style="color:var(--abn-error)">Line {_apexResult.line}: {_apexResult.compileProblem}</pre>
+                            </template>
+                            <template if:true={_apexResult.exceptionMessage}>
+                                <pre class="abn-apex-result__output" style="color:var(--abn-error)">{_apexResult.exceptionMessage}
+{_apexResult.exceptionStackTrace}</pre>
+                            </template>
+                            <template if:true={_apexResult.debugOutput}>
+                                <div class="abn-apex-result__output">
+                                    <template for:each={_apexDebugLines} for:item="line">
+                                        <div key={line.id} class={line.lineClass}>{line.text}</div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Apex Logs -->
+                    <template if:true={_showApexLogs}>
+                        <div class="abn-history">
+                            <div class="abn-history__header">
+                                <span>Recent Debug Logs</span>
+                                <button class="abn-btn abn-btn--ghost abn-btn--sm" onclick={handleRefreshApexLogs}>Refresh</button>
+                            </div>
+                            <div class="abn-log-list">
+                                <template if:true={_apexLogsLoading}>
+                                    <div class="abn-empty-state" style="padding:16px"><span class="abn-spinner"></span></div>
+                                </template>
+                                <template if:false={_apexLogsLoading}>
+                                    <template for:each={_apexLogs} for:item="log">
+                                        <div key={log.id} class="abn-log-item" data-id={log.id} onclick={handleViewApexLog}>
+                                            <span class={log.statusDotClass}></span>
+                                            <span class="abn-flex-1 abn-truncate abn-text-mono">{log.operation}</span>
+                                            <span class="abn-text-xs abn-text-muted">{log.durationMs}ms</span>
+                                            <span class="abn-text-xs abn-text-muted">{log.relativeTime}</span>
+                                        </div>
+                                    </template>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Log Detail Modal -->
+                    <template if:true={_showLogDetail}>
+                        <div class="abn-modal-backdrop" onclick={handleCloseLogDetail}>
+                            <div class="abn-modal" style="max-width:800px" onclick={handleModalStopProp}>
+                                <div class="abn-modal__header">
+                                    <span class="abn-modal__title">Debug Log</span>
+                                    <button class="abn-btn abn-btn--ghost abn-btn--icon" onclick={handleCloseLogDetail}>&times;</button>
+                                </div>
+                                <div class="abn-modal__body">
+                                    <pre class="abn-text-mono abn-text-xs" style="white-space:pre-wrap;max-height:400px;overflow:auto">{_logDetailBody}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+
+                <!-- ═══════════════════════════════════════
+                     DATA LOADER
+                     ═══════════════════════════════════════ -->
+                <div class={dlPanelClass} role="tabpanel" id="panel-dataLoader" aria-labelledby="tab-dataLoader">
+
+                    <!-- Wizard Step Indicator -->
+                    <div class="abn-wizard-steps">
+                        <template for:each={_dlWizardSteps} for:item="step">
+                            <div key={step.key} class={step.stepClass}>
+                                <div class="abn-wizard-step__dot">{step.dotContent}</div>
+                                <span class="abn-wizard-step__label">{step.label}</span>
+                            </div>
+                            <template if:true={step.showLine}>
+                                <div key={step.lineKey} class="abn-wizard-step__line"></div>
+                            </template>
+                        </template>
+                    </div>
+
+                    <!-- Step 1: Select Operation & Object -->
+                    <template if:true={_dlStep1}>
+                        <div class="abn-flex-col abn-gap-md">
+                            <div>
+                                <label class="abn-form-label abn-mb-sm">Operation</label>
+                                <div class="abn-flex abn-gap-sm">
+                                    <template for:each={_dlOperations} for:item="op">
+                                        <button key={op.value} class={op.btnClass} data-value={op.value} onclick={handleDlSelectOperation}>
+                                            {op.label}
+                                            <span class="abn-text-xs abn-text-muted" style="display:block;font-weight:normal">{op.description}</span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="abn-form-label abn-mb-sm">Target Object</label>
+                                <input type="text" class="abn-input" placeholder="Search objects... (e.g. Account, Contact)"
+                                    value={_dlObjectSearch} oninput={handleDlObjectSearch} aria-label="Search for Salesforce object"/>
+                                <template if:true={_dlObjectResults.length}>
+                                    <div class="abn-history__list" style="max-height:200px;border:1px solid var(--abn-border-default);border-radius:var(--abn-radius-md);margin-top:4px">
+                                        <template for:each={_dlObjectResults} for:item="obj">
+                                            <div key={obj.apiName} class="abn-history__item" data-value={obj.apiName} onclick={handleDlSelectObject}>
+                                                <span class="abn-badge abn-badge--blue">{obj.apiName}</span>
+                                                <span class="abn-text-xs abn-text-muted">{obj.label}</span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template if:true={_dlSelectedObject}>
+                                    <div class="abn-mt-sm">
+                                        <span class="abn-chip abn-chip--selected">{_dlSelectedObject}
+                                            <button class="abn-chip__remove" onclick={handleDlClearObject}>&times;</button>
+                                        </span>
+                                    </div>
+                                </template>
+                            </div>
+                            <template if:true={_dlIsUpsert}>
+                                <div>
+                                    <label class="abn-form-label abn-mb-sm">External ID Field</label>
+                                    <input type="text" class="abn-input" placeholder="e.g. External_Id__c" value={_dlExternalIdField} oninput={handleDlExternalIdInput}/>
+                                </div>
+                            </template>
+                            <div class="abn-flex abn-justify-between">
+                                <span></span>
+                                <button class="abn-btn abn-btn--primary" onclick={handleDlNext} disabled={_dlStep1Invalid}>Next</button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Step 2: Import Data -->
+                    <template if:true={_dlStep2}>
+                        <div class="abn-flex-col abn-gap-md">
+                            <div class="abn-dropzone" onclick={handleDlFileClick} ondragover={handleDlDragOver} ondrop={handleDlDrop}>
+                                <input type="file" accept=".csv" class="abn-hidden" onchange={handleDlFileChange}/>
+                                <div class="abn-dropzone__icon">&#x1F4C4;</div>
+                                <div class="abn-dropzone__text">Drop a CSV file here or click to upload</div>
+                            </div>
+                            <div class="abn-text-xs abn-text-muted" style="text-align:center">— or —</div>
+                            <div>
+                                <label class="abn-form-label abn-mb-sm">Paste CSV Data</label>
+                                <textarea class="abn-input abn-input--mono" style="min-height:100px;resize:vertical" placeholder="Id,Name,Email&#10;001xx...,Acme Corp,acme@test.com"
+                                    oninput={handleDlPasteInput}></textarea>
+                            </div>
+                            <template if:true={_dlParsePreview}>
+                                <div class="abn-text-sm">
+                                    Parsed: <strong>{_dlParsePreview.headerCount}</strong> columns, <strong>{_dlParsePreview.rowCount}</strong> rows
+                                </div>
+                            </template>
+                            <div class="abn-flex abn-justify-between">
+                                <button class="abn-btn" onclick={handleDlBack}>Back</button>
+                                <button class="abn-btn abn-btn--primary" onclick={handleDlNext} disabled={_dlStep2Invalid}>Next</button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Step 3: Map Fields -->
+                    <template if:true={_dlStep3}>
+                        <div class="abn-flex-col abn-gap-md">
+                            <div class="abn-results__table-wrap" style="max-height:350px">
+                                <table class="abn-mapping-table">
+                                    <thead>
+                                        <tr>
+                                            <th>CSV Column</th>
+                                            <th>Salesforce Field</th>
+                                            <th>Type</th>
+                                            <th>Confidence</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={_dlMappings} for:item="m">
+                                            <tr key={m.csvIndex}>
+                                                <td class="abn-text-mono">{m.csvHeader}</td>
+                                                <td>
+                                                    <select class="abn-select" data-index={m.csvIndex} value={m.sfField} onchange={handleDlMappingChange}>
+                                                        <option value="">-- Skip --</option>
+                                                        <template for:each={_dlTargetFields} for:item="tf">
+                                                            <option key={tf.apiName} value={tf.apiName} selected={tf.selected}>{tf.apiName} ({tf.label})</option>
+                                                        </template>
+                                                    </select>
+                                                </td>
+                                                <td><span class="abn-badge abn-badge--grey">{m.sfFieldType}</span></td>
+                                                <td><span class={m.confidenceClass}>{m.confidence}</span></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="abn-flex abn-justify-between">
+                                <button class="abn-btn" onclick={handleDlBack}>Back</button>
+                                <button class="abn-btn abn-btn--primary" onclick={handleDlNext} disabled={_dlStep3Invalid}>Next</button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Step 4: Execute -->
+                    <template if:true={_dlStep4}>
+                        <div class="abn-flex-col abn-gap-md" style="align-items:center">
+                            <div class="abn-text-sm">
+                                <strong>{_dlRecordCount}</strong> records to <strong>{_dlOperation}</strong> into <strong>{_dlSelectedObject}</strong>
+                                in <strong>{_dlBatchCount}</strong> batch(es)
+                            </div>
+                            <div class="abn-form-row">
+                                <label class="abn-form-label">Batch Size</label>
+                                <select class="abn-select" value={_dlBatchSize} onchange={handleDlBatchSizeChange}>
+                                    <option value="1">1</option>
+                                    <option value="10">10</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="200">200</option>
+                                </select>
+                            </div>
+                            <template if:true={_dlIsExecuting}>
+                                <div class="abn-w-full">
+                                    <div class="abn-text-xs abn-text-muted abn-mb-sm">Processing batch {_dlCurrentBatch} of {_dlBatchCount}...</div>
+                                    <div class="abn-progress">
+                                        <div class="abn-progress__bar" style={dlProgressStyle}></div>
+                                    </div>
+                                </div>
+                            </template>
+                            <div class="abn-flex abn-justify-between abn-w-full">
+                                <button class="abn-btn" onclick={handleDlBack} disabled={_dlIsExecuting}>Back</button>
+                                <button class="abn-btn abn-btn--primary" onclick={handleDlExecute} disabled={_dlIsExecuting}>
+                                    <template if:true={_dlIsExecuting}><span class="abn-spinner"></span></template>
+                                    Execute
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Step 5: Results -->
+                    <template if:true={_dlStep5}>
+                        <div class="abn-flex-col abn-gap-md">
+                            <div class="abn-flex abn-gap-md abn-items-center">
+                                <span class="abn-badge abn-badge--green">Success: {_dlResultSuccess}</span>
+                                <template if:true={_dlResultFailures}>
+                                    <span class="abn-badge abn-badge--red">Failed: {_dlResultFailures}</span>
+                                </template>
+                                <span class="abn-text-xs abn-text-muted">of {_dlResultTotal} total</span>
+                            </div>
+                            <div class="abn-results__table-wrap" style="max-height:350px">
+                                <table class="abn-field-table">
+                                    <thead>
+                                        <tr><th>Row</th><th>Status</th><th>Record ID</th><th>Error</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={_dlResults} for:item="r">
+                                            <tr key={r.rowIndex}>
+                                                <td>{r.rowIndex}</td>
+                                                <td>
+                                                    <template if:true={r.success}><span class="abn-status-dot abn-status-dot--success"></span></template>
+                                                    <template if:false={r.success}><span class="abn-status-dot abn-status-dot--error"></span></template>
+                                                </td>
+                                                <td class="abn-text-mono abn-text-xs">{r.recordId}</td>
+                                                <td class="abn-text-xs" style="color:var(--abn-error)">{r.errorMessage}</td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="abn-flex abn-justify-between">
+                                <button class="abn-btn" onclick={handleDlReset}>Start Over</button>
+                                <button class="abn-btn" onclick={handleDlExportResults}>Export Results</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+            </div><!-- end .abn-content -->
+
+            <!-- ─── FOOTER ─── -->
+            <footer class="abn-footer">
+                <span class="abn-footer__brand">ABN AMRO Developer Tools</span>
+                <span class="abn-footer__version">v1.0</span>
+            </footer>
+        </div><!-- end .abn-container -->
+
+        <!-- ═══════════════════════════════════════
+             ONBOARDING OVERLAY
+             ═══════════════════════════════════════ -->
+        <template if:true={_showOnboarding}>
+            <div class="abn-onboarding">
+                <div class="abn-onboarding__card">
+                    <div class="abn-onboarding__title">{_onboardingStep.title}</div>
+                    <div class="abn-onboarding__subtitle">{_onboardingStep.subtitle}</div>
+                    <template if:true={_onboardingStep.features}>
+                        <div class="abn-onboarding__features">
+                            <template for:each={_onboardingStep.features} for:item="feat">
+                                <div key={feat} class="abn-onboarding__feature">{feat}</div>
+                            </template>
+                        </div>
+                    </template>
+                    <div class="abn-onboarding__dots">
+                        <template for:each={_onboardingDots} for:item="dot">
+                            <button key={dot.index} class={dot.dotClass} data-index={dot.index} onclick={handleOnboardingDotClick} aria-label={dot.ariaLabel}></button>
+                        </template>
+                    </div>
+                    <div class="abn-onboarding__actions">
+                        <template if:true={_onboardingCanSkip}>
+                            <button class="abn-btn abn-btn--ghost" onclick={handleOnboardingSkip}>Skip Tour</button>
+                        </template>
+                        <template if:true={_onboardingCanBack}>
+                            <button class="abn-btn" onclick={handleOnboardingBack}>Back</button>
+                        </template>
+                        <template if:true={_onboardingIsLast}>
+                            <button class="abn-btn abn-btn--primary" onclick={handleOnboardingComplete}>Start Using Developer Tools</button>
+                        </template>
+                        <template if:false={_onboardingIsLast}>
+                            <button class="abn-btn abn-btn--primary" onclick={handleOnboardingNext}>Next</button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- ═══════════════════════════════════════
+             PREFERENCES MODAL
+             ═══════════════════════════════════════ -->
+        <template if:true={_showPreferences}>
+            <div class="abn-modal-backdrop" onclick={handleClosePreferences}>
+                <div class="abn-modal abn-modal--settings" onclick={handleModalStopProp}>
+                    <div class="abn-modal__header">
+                        <div class="abn-modal__header-left">
+                            <lightning-icon icon-name="utility:settings" size="xx-small" alternative-text="Settings"></lightning-icon>
+                            <span class="abn-modal__title">Settings</span>
+                        </div>
+                        <button class="abn-btn abn-btn--ghost abn-btn--icon" onclick={handleClosePreferences} aria-label="Close">
+                            <lightning-icon icon-name="utility:close" size="xx-small" alternative-text="Close"></lightning-icon>
+                        </button>
+                    </div>
+                    <div class="abn-modal__body">
+                        <!-- Appearance Section -->
+                        <div class="abn-settings-section">
+                            <h4 class="abn-settings-section__title">Appearance</h4>
+                            <div class="abn-settings-group">
+                                <div class="abn-setting">
+                                    <div class="abn-setting__info">
+                                        <span class="abn-setting__label">Theme</span>
+                                        <span class="abn-setting__desc">Switch between light and dark mode</span>
+                                    </div>
+                                    <select class="abn-select" value={_prefTheme} onchange={handlePrefThemeChange}>
+                                        <option value="dark">Dark</option>
+                                        <option value="light">Light</option>
+                                    </select>
+                                </div>
+                                <div class="abn-setting">
+                                    <div class="abn-setting__info">
+                                        <span class="abn-setting__label">Editor Font Size</span>
+                                        <span class="abn-setting__desc">Code editor and SOQL editor text size</span>
+                                    </div>
+                                    <select class="abn-select" value={_prefEditorFontSize} onchange={handlePrefFontSizeChange}>
+                                        <option value="11">11px</option>
+                                        <option value="12">12px</option>
+                                        <option value="13">13px</option>
+                                        <option value="14">14px</option>
+                                        <option value="15">15px</option>
+                                    </select>
+                                </div>
+                                <div class="abn-setting">
+                                    <div class="abn-setting__info">
+                                        <span class="abn-setting__label">Default Tab</span>
+                                        <span class="abn-setting__desc">Tab shown on launch</span>
+                                    </div>
+                                    <select class="abn-select" value={_prefDefaultTab} onchange={handlePrefDefaultTabChange}>
+                                        <option value="recordInspector">Record Inspector</option>
+                                        <option value="soqlExplorer">SOQL Explorer</option>
+                                        <option value="apexRunner">Apex Runner</option>
+                                        <option value="dataLoader">Data Loader</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Editor Section -->
+                        <div class="abn-settings-section">
+                            <h4 class="abn-settings-section__title">Editor</h4>
+                            <div class="abn-settings-group">
+                                <label class="abn-setting abn-setting--toggle">
+                                    <div class="abn-setting__info">
+                                        <span class="abn-setting__label">Autocomplete</span>
+                                        <span class="abn-setting__desc">IntelliSense suggestions while typing</span>
+                                    </div>
+                                    <div class="abn-toggle">
+                                        <input type="checkbox" checked={_prefAutocomplete} onchange={handlePrefAutocompleteChange}/>
+                                        <span class="abn-toggle__track"></span>
+                                    </div>
+                                </label>
+                                <label class="abn-setting abn-setting--toggle">
+                                    <div class="abn-setting__info">
+                                        <span class="abn-setting__label">Syntax Highlighting</span>
+                                        <span class="abn-setting__desc">Color-coded SOQL keywords and values</span>
+                                    </div>
+                                    <div class="abn-toggle">
+                                        <input type="checkbox" checked={_prefSyntaxHighlighting} onchange={handlePrefSyntaxChange}/>
+                                        <span class="abn-toggle__track"></span>
+                                    </div>
+                                </label>
+                                <label class="abn-setting abn-setting--toggle">
+                                    <div class="abn-setting__info">
+                                        <span class="abn-setting__label">Field Chips</span>
+                                        <span class="abn-setting__desc">Show clickable field badges below editor</span>
+                                    </div>
+                                    <div class="abn-toggle">
+                                        <input type="checkbox" checked={_prefFieldChips} onchange={handlePrefFieldChipsChange}/>
+                                        <span class="abn-toggle__track"></span>
+                                    </div>
+                                </label>
+                                <label class="abn-setting abn-setting--toggle">
+                                    <div class="abn-setting__info">
+                                        <span class="abn-setting__label">Row Numbers</span>
+                                        <span class="abn-setting__desc">Display row numbers in query results</span>
+                                    </div>
+                                    <div class="abn-toggle">
+                                        <input type="checkbox" checked={_prefRowNumbers} onchange={handlePrefRowNumbersChange}/>
+                                        <span class="abn-toggle__track"></span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Safety Section -->
+                        <div class="abn-settings-section">
+                            <h4 class="abn-settings-section__title">Safety</h4>
+                            <div class="abn-settings-group">
+                                <label class="abn-setting abn-setting--toggle">
+                                    <div class="abn-setting__info">
+                                        <span class="abn-setting__label">Confirm Destructive Actions</span>
+                                        <span class="abn-setting__desc">Prompt before delete, DML, and bulk operations</span>
+                                    </div>
+                                    <div class="abn-toggle">
+                                        <input type="checkbox" checked={_prefConfirmDestructive} onchange={handlePrefConfirmDestructiveChange}/>
+                                        <span class="abn-toggle__track"></span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="abn-btn abn-btn--ghost abn-btn--sm" onclick={handleResetOnboarding}>
+                            <lightning-icon icon-name="utility:refresh" size="xx-small" alternative-text="Reset"></lightning-icon>
+                            Re-show Onboarding
+                        </button>
+                    </div>
+                    <div class="abn-modal__footer">
+                        <button class="abn-btn abn-btn--primary" onclick={handleClosePreferences}>Done</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- ═══════════════════════════════════════
+             CONFIRM DELETE MODAL
+             ═══════════════════════════════════════ -->
+        <template if:true={_showDeleteConfirm}>
+            <div class="abn-modal-backdrop" onclick={handleCancelDelete}>
+                <div class="abn-modal" onclick={handleModalStopProp}>
+                    <div class="abn-modal__header">
+                        <span class="abn-modal__title">Confirm Delete</span>
+                        <button class="abn-btn abn-btn--ghost abn-btn--icon" onclick={handleCancelDelete}>&times;</button>
+                    </div>
+                    <div class="abn-modal__body">
+                        <p class="abn-text-sm">{_deleteConfirmMessage}</p>
+                    </div>
+                    <div class="abn-modal__footer">
+                        <button class="abn-btn" onclick={handleCancelDelete}>Cancel</button>
+                        <button class="abn-btn abn-btn--danger" onclick={handleConfirmDelete}>Delete</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- ═══════════════════════════════════════
+             CASCADE DELETE MODAL
+             ═══════════════════════════════════════ -->
+        <template if:true={_showCascadeConfirm}>
+            <div class="abn-modal-backdrop" onclick={handleCancelCascadeDelete}>
+                <div class="abn-modal abn-modal--wide" onclick={handleModalStopProp}>
+                    <div class="abn-modal__header abn-modal__header--warning">
+                        <lightning-icon icon-name="utility:warning" size="small" class="abn-icon--warning"></lightning-icon>
+                        <span class="abn-modal__title">Child Records Detected</span>
+                        <template if:false={_cascadeDeleting}>
+                            <button class="abn-btn abn-btn--ghost abn-btn--icon" onclick={handleCancelCascadeDelete}>&times;</button>
+                        </template>
+                    </div>
+                    <div class="abn-modal__body">
+                        <p class="abn-text-sm abn-mb-sm">{_cascadeDeleteSummary}</p>
+                        <template if:true={_cascadeDeleteErrors}>
+                            <div class="abn-cascade-errors">
+                                <template for:each={_cascadeDeleteErrors} for:item="err">
+                                    <p key={err} class="abn-text-xs abn-text-muted">{err}</p>
+                                </template>
+                            </div>
+                        </template>
+                        <template if:false={_cascadeDeleting}>
+                            <p class="abn-text-sm abn-mt-sm abn-text-warning">Cascade delete will remove all related child records first, then delete the parent record(s). This action cannot be undone.</p>
+                        </template>
+                        <template if:true={_cascadeDeleting}>
+                            <div class="abn-flex abn-gap-sm abn-mt-sm" style="align-items:center">
+                                <span class="abn-spinner"></span>
+                                <span class="abn-text-sm">Processing cascade deletion...</span>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="abn-modal__footer">
+                        <template if:false={_cascadeDeleting}>
+                            <button class="abn-btn" onclick={handleCancelCascadeDelete}>Cancel</button>
+                            <button class="abn-btn abn-btn--danger" onclick={handleConfirmCascadeDelete}>Cascade Delete</button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+    </template><!-- end _hasAccess -->
+
+    <!-- Screen reader status announcements -->
+    <div class="abn-sr-only" role="status" aria-live="polite" lwc:dom="manual"></div>
+</template>

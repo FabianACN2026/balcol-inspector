@@ -1,0 +1,2113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - ABN AMRO Salesforce Developer Tools</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #1a1a2e;
+            background: #ffffff;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Cover Page ── */
+        .cover {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #00796B 0%, #009488 40%, #004D40 100%);
+            color: #ffffff;
+            text-align: center;
+            padding: 3rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .cover::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 50%, rgba(249, 189, 32, 0.08) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 30%, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .cover-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 100px;
+            padding: 0.5rem 1.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .cover h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .cover h1 span {
+            display: block;
+            color: #F9BD20;
+        }
+        .cover .subtitle {
+            font-size: 1.25rem;
+            font-weight: 400;
+            opacity: 0.85;
+            max-width: 600px;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        .cover-meta {
+            display: flex;
+            gap: 2.5rem;
+            position: relative;
+        }
+        .cover-meta-item {
+            text-align: center;
+        }
+        .cover-meta-item .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 0.6;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        .cover-meta-item .value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .cover-divider {
+            width: 60px;
+            height: 3px;
+            background: #F9BD20;
+            border-radius: 2px;
+            margin: 2rem auto;
+            position: relative;
+        }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* ── Table of Contents ── */
+        .toc-section {
+            padding: 4rem 0;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .toc-section h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #009488;
+            margin-bottom: 2rem;
+            letter-spacing: -0.02em;
+        }
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .toc-card {
+            background: #f8fafb;
+            border: 1px solid #e0e7eb;
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .toc-card:hover {
+            border-color: #009488;
+            background: #f0faf9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 148, 136, 0.08);
+        }
+        .toc-card .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #00796B;
+        }
+        .toc-card .card-desc {
+            font-size: 0.8rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        .toc-card .card-count {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #009488;
+            margin-top: 0.25rem;
+        }
+
+        /* ── Controller Sections ── */
+        .controller-section {
+            padding: 4rem 0;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .controller-section:last-of-type {
+            border-bottom: none;
+        }
+        .controller-header {
+            margin-bottom: 2.5rem;
+        }
+        .controller-header h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #009488;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+        .controller-header p {
+            font-size: 0.95rem;
+            color: #6b7280;
+            max-width: 700px;
+        }
+        .controller-header .sharing-badge {
+            display: inline-block;
+            background: #e0f2f1;
+            color: #00796B;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            margin-top: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* ── Method Cards ── */
+        .method-card {
+            background: #ffffff;
+            border: 1px solid #e0e7eb;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: box-shadow 0.15s ease;
+        }
+        .method-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        .method-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .badge-cacheable {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .badge-power {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .badge-dml {
+            background: #fce4ec;
+            color: #c62828;
+        }
+        .method-desc {
+            font-size: 0.9rem;
+            color: #4b5563;
+            margin-bottom: 1.25rem;
+            line-height: 1.7;
+        }
+
+        /* ── Code Blocks ── */
+        .code-block {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.25rem;
+            overflow-x: auto;
+            position: relative;
+        }
+        .code-block code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #e0e0e0;
+            line-height: 1.6;
+            white-space: pre;
+        }
+        .code-block .kw { color: #c792ea; }
+        .code-block .type { color: #82aaff; }
+        .code-block .str { color: #c3e88d; }
+        .code-block .ann { color: #F9BD20; }
+        .code-block .param { color: #f78c6c; }
+        .code-block .comment { color: #6b7280; font-style: italic; }
+
+        /* ── Tables ── */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.25rem;
+            font-size: 0.85rem;
+        }
+        .param-table th {
+            background: #009488;
+            color: #ffffff;
+            font-weight: 600;
+            text-align: left;
+            padding: 0.6rem 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .param-table th:first-child { border-radius: 6px 0 0 0; }
+        .param-table th:last-child { border-radius: 0 6px 0 0; }
+        .param-table td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+        }
+        .param-table tr:nth-child(even) td {
+            background: #f8fafb;
+        }
+        .param-table tr:last-child td:first-child { border-radius: 0 0 0 6px; }
+        .param-table tr:last-child td:last-child { border-radius: 0 0 6px 0; }
+        .param-table code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            background: #eef2f7;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            color: #00796B;
+        }
+
+        /* ── Return & Security Info ── */
+        .info-row {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .info-box {
+            flex: 1;
+            min-width: 200px;
+            background: #f8fafb;
+            border-left: 3px solid #009488;
+            border-radius: 0 6px 6px 0;
+            padding: 0.75rem 1rem;
+        }
+        .info-box.security {
+            border-left-color: #F9BD20;
+        }
+        .info-box .info-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #009488;
+            margin-bottom: 0.25rem;
+        }
+        .info-box.security .info-label {
+            color: #e6a817;
+        }
+        .info-box .info-value {
+            font-size: 0.85rem;
+            color: #374151;
+        }
+        .info-box .info-value code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            background: #eef2f7;
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+            color: #00796B;
+        }
+
+        /* ── Callout Boxes ── */
+        .callout {
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+        .callout-info {
+            background: #e0f2f1;
+            border-left: 4px solid #009488;
+        }
+        .callout-warning {
+            background: #fff8e1;
+            border-left: 4px solid #F9BD20;
+        }
+        .callout-danger {
+            background: #fce4ec;
+            border-left: 4px solid #ef5350;
+        }
+        .callout strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+        .callout code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            background: rgba(0, 0, 0, 0.06);
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+        }
+
+        /* ── Wrapper Class Section ── */
+        .wrapper-section {
+            padding: 4rem 0;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .wrapper-section h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #009488;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+        .wrapper-section > p {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+        .wrapper-group {
+            margin-bottom: 2rem;
+        }
+        .wrapper-group h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.25rem;
+        }
+        .wrapper-group .parent-class {
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+        }
+
+        /* ── Security Model Section ── */
+        .security-section {
+            padding: 4rem 0;
+        }
+        .security-section h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #009488;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+        .security-section p {
+            font-size: 0.93rem;
+            color: #4b5563;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        .security-layer {
+            background: #f8fafb;
+            border: 1px solid #e0e7eb;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .security-layer h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #00796B;
+            margin-bottom: 0.5rem;
+        }
+        .security-layer p {
+            margin-bottom: 0;
+        }
+        .security-layer code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            background: #eef2f7;
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+            color: #00796B;
+        }
+
+        /* ── Footer ── */
+        .footer {
+            background: #1a1a2e;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            padding: 2.5rem 2rem;
+            font-size: 0.8rem;
+        }
+        .footer strong {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* ── Print Styles ── */
+        @media print {
+            .cover { min-height: auto; padding: 3rem 2rem; page-break-after: always; }
+            .toc-section { page-break-after: always; }
+            .controller-section { page-break-before: auto; }
+            .method-card { break-inside: avoid; page-break-inside: avoid; }
+            .wrapper-group { break-inside: avoid; }
+            body { font-size: 10pt; }
+            .code-block { background: #f5f5f5 !important; border: 1px solid #ccc; }
+            .code-block code { color: #1a1a2e !important; }
+            .code-block .kw { color: #7b1fa2 !important; }
+            .code-block .type { color: #1565c0 !important; }
+            .code-block .str { color: #2e7d32 !important; }
+            .code-block .ann { color: #e65100 !important; }
+            .code-block .param { color: #d84315 !important; }
+        }
+
+        /* ── Back to Top ── */
+        .back-to-top {
+            display: inline-block;
+            font-size: 0.75rem;
+            color: #009488;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        .back-to-top:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- COVER PAGE                                             -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="cover" id="top">
+    <div class="cover-badge">ABN AMRO Developer Tools</div>
+    <h1>API <span>Reference</span></h1>
+    <p class="subtitle">Complete Apex controller documentation for the ABN AMRO Salesforce Developer Tools suite.</p>
+    <div class="cover-divider"></div>
+    <div class="cover-meta">
+        <div class="cover-meta-item">
+            <span class="label">Version</span>
+            <span class="value">1.0</span>
+        </div>
+        <div class="cover-meta-item">
+            <span class="label">Date</span>
+            <span class="value">March 2026</span>
+        </div>
+        <div class="cover-meta-item">
+            <span class="label">Classification</span>
+            <span class="value">Internal</span>
+        </div>
+        <div class="cover-meta-item">
+            <span class="label">Controllers</span>
+            <span class="value">7</span>
+        </div>
+        <div class="cover-meta-item">
+            <span class="label">Methods</span>
+            <span class="value">28</span>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TABLE OF CONTENTS                                      -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="toc-section" id="toc">
+    <h2>Table of Contents</h2>
+    <div class="toc-grid">
+        <a href="#devtools-access" class="toc-card">
+            <span class="card-title">DevToolsAccessController</span>
+            <span class="card-desc">Permission gate for tool access</span>
+            <span class="card-count">1 method</span>
+        </a>
+        <a href="#apex-runner" class="toc-card">
+            <span class="card-title">ApexRunnerController</span>
+            <span class="card-desc">Anonymous Apex execution, trace flags, debug logs</span>
+            <span class="card-count">5 methods</span>
+        </a>
+        <a href="#metadata-browser" class="toc-card">
+            <span class="card-title">MetadataBrowserController</span>
+            <span class="card-desc">Object listing and schema metadata</span>
+            <span class="card-count">2 methods</span>
+        </a>
+        <a href="#data-loader" class="toc-card">
+            <span class="card-title">DataLoaderController</span>
+            <span class="card-desc">Bulk insert, update, upsert with FLS</span>
+            <span class="card-count">3 methods</span>
+        </a>
+        <a href="#soql-explorer" class="toc-card">
+            <span class="card-title">SOQLExplorerController</span>
+            <span class="card-desc">Query execution, pagination, export, schema</span>
+            <span class="card-count">9 methods</span>
+        </a>
+        <a href="#record-inspector" class="toc-card">
+            <span class="card-title">RecordInspectorController</span>
+            <span class="card-desc">Record inspection, deletion, history, updates</span>
+            <span class="card-count">7 methods</span>
+        </a>
+        <a href="#wrapper-classes" class="toc-card">
+            <span class="card-title">Wrapper Classes</span>
+            <span class="card-desc">All inner classes with @AuraEnabled fields</span>
+            <span class="card-count">16 classes</span>
+        </a>
+        <a href="#security-model" class="toc-card">
+            <span class="card-title">Security Model</span>
+            <span class="card-desc">SecurityUtil patterns and enforcement layers</span>
+            <span class="card-count">Reference</span>
+        </a>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 1. DevToolsAccessController                            -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="controller-section" id="devtools-access">
+    <div class="controller-header">
+        <h2>DevToolsAccessController</h2>
+        <p>Permission gate controller. Determines whether the current user has access to the Developer Tools suite. Called by the LWC on initial load before rendering any tool UI.</p>
+        <span class="sharing-badge">with sharing</span>
+    </div>
+
+    <!-- hasAccess -->
+    <div class="method-card" id="hasAccess">
+        <div class="method-name">
+            hasAccess()
+            <span class="badge badge-cacheable">Cacheable</span>
+        </div>
+        <p class="method-desc">Checks whether the current user has the <code>Dev_Tools_Access</code> custom permission assigned. Returns <code>true</code> if the permission is granted, <code>false</code> otherwise. Uses <code>FeatureManagement.checkPermission()</code>.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled(cacheable=true)</span>
+<span class="kw">public static</span> <span class="type">Boolean</span> <span class="kw">hasAccess</span>()</code></div>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>Boolean</code> &mdash; <code>true</code> if user has <code>Dev_Tools_Access</code> permission</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>FeatureManagement.checkPermission('Dev_Tools_Access')</code></div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#toc" class="back-to-top">Back to Table of Contents</a>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 2. ApexRunnerController                                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="controller-section" id="apex-runner">
+    <div class="controller-header">
+        <h2>ApexRunnerController</h2>
+        <p>Controller for the Apex Runner module. Executes anonymous Apex via the Tooling API using session-based authentication through <code>SelfOrgCalloutHelper</code>. Manages trace flags and debug log retrieval.</p>
+        <span class="sharing-badge">with sharing</span>
+    </div>
+
+    <!-- ensureTraceFlag -->
+    <div class="method-card" id="ensureTraceFlag">
+        <div class="method-name">
+            ensureTraceFlag()
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Creates or renews a trace flag for the current user so that debug logs are captured during Apex execution. Finds or creates a <code>DebugLevel</code> via Tooling API, then checks for an active <code>TraceFlag</code>. If expired or missing, creates/updates one with a 30-minute expiration. Non-critical &mdash; silently skips if user lacks permission or if setup fails.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static void</span> <span class="kw">ensureTraceFlag</span>()</code></div>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>void</code></div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>SecurityUtil.hasPowerToolsPermission()</code> &mdash; silently returns if denied</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- executeAnonymousApex -->
+    <div class="method-card" id="executeAnonymousApex">
+        <div class="method-name">
+            executeAnonymousApex(code)
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Executes anonymous Apex code via the Tooling API <code>executeAnonymous</code> endpoint. URL-encodes the code and sends it as a GET request. Returns compilation and execution status along with any error details. Has a 2-minute timeout for long-running code.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">ExecutionResult</span> <span class="kw">executeAnonymousApex</span>(<span class="type">String</span> <span class="param">code</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>code</code></td>
+                    <td><code>String</code></td>
+                    <td>The Apex code to execute. Cannot be blank. Maximum 100,000 characters.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>ExecutionResult</code> &mdash; compiled status, success flag, error details (compileProblem, exceptionMessage, line, column)</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>SecurityUtil.hasPowerToolsPermission()</code> &mdash; throws <code>AuraHandledException</code> if denied</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- getRecentLogs -->
+    <div class="method-card" id="getRecentLogs">
+        <div class="method-name">
+            getRecentLogs(limitCount)
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Fetches recent debug logs for the current user via the Tooling API. Queries <code>ApexLog</code> ordered by <code>StartTime DESC</code>. Filters out Lightning framework noise (operations starting with <code>/aura</code> or <code>/apex/</code>). Fetches 3x the requested limit to compensate for filtered rows.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">List&lt;DebugLogInfo&gt;</span> <span class="kw">getRecentLogs</span>(<span class="type">Integer</span> <span class="param">limitCount</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>limitCount</code></td>
+                    <td><code>Integer</code></td>
+                    <td>Maximum number of logs to return. Range: 1&ndash;50. Defaults to 20 if null or out of range.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>List&lt;DebugLogInfo&gt;</code> &mdash; log entries with id, operation, duration, status, start time</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>SecurityUtil.hasPowerToolsPermission()</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- getLogBody -->
+    <div class="method-card" id="getLogBody">
+        <div class="method-name">
+            getLogBody(logId)
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Retrieves the raw text body of a specific <code>ApexLog</code> record via the Tooling API. Fetches from <code>/tooling/sobjects/ApexLog/{logId}/Body</code>.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">String</span> <span class="kw">getLogBody</span>(<span class="type">String</span> <span class="param">logId</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>logId</code></td>
+                    <td><code>String</code></td>
+                    <td>The 18-character ApexLog record Id. Required.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>String</code> &mdash; raw debug log body text</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>SecurityUtil.hasPowerToolsPermission()</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- getExecutionLog -->
+    <div class="method-card" id="getExecutionLog">
+        <div class="method-name">
+            getExecutionLog(afterTimestamp)
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Fetches the debug log generated by the most recent anonymous Apex execution. Queries for the <code>ApexLog</code> created after the given ISO 8601 timestamp for the current user, skipping framework noise. Fetches the log body and extracts <code>USER_DEBUG</code> output lines using regex pattern matching. Returns <code>null</code> if no matching log is found yet.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">ExecutionLog</span> <span class="kw">getExecutionLog</span>(<span class="type">String</span> <span class="param">afterTimestamp</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>afterTimestamp</code></td>
+                    <td><code>String</code></td>
+                    <td>ISO 8601 timestamp. Only logs created after this time are considered. Returns <code>null</code> if blank.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>ExecutionLog</code> &mdash; contains logId, durationMs, status, parsed debugOutput, and fullLog. Returns <code>null</code> if no log found.</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>SecurityUtil.hasPowerToolsPermission()</code></div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#toc" class="back-to-top">Back to Table of Contents</a>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 3. MetadataBrowserController                           -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="controller-section" id="metadata-browser">
+    <div class="controller-header">
+        <h2>MetadataBrowserController</h2>
+        <p>Provides object listing via <code>EntityDefinition</code> SOQL (faster than iterating <code>Schema.getGlobalDescribe()</code>) and detailed field/relationship metadata for the schema browser and SOQL autocomplete.</p>
+        <span class="sharing-badge">with sharing</span>
+    </div>
+
+    <!-- getAccessibleObjects -->
+    <div class="method-card" id="getAccessibleObjects">
+        <div class="method-name">
+            getAccessibleObjects(searchTerm)
+            <span class="badge badge-cacheable">Cacheable</span>
+        </div>
+        <p class="method-desc">Lists all queryable, accessible objects in the org. Queries <code>EntityDefinition</code> for up to 2000 queryable entities, then post-filters by the user's object-level access using <code>isAccessible()</code>. Optionally filters by API name or label (case-insensitive substring match). Returns a maximum of 500 results.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled(cacheable=true)</span>
+<span class="kw">public static</span> <span class="type">List&lt;ObjectSummary&gt;</span> <span class="kw">getAccessibleObjects</span>(<span class="type">String</span> <span class="param">searchTerm</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>searchTerm</code></td>
+                    <td><code>String</code></td>
+                    <td>Optional search term to filter objects by API name or label. Case-insensitive substring match. Pass <code>null</code> for all objects.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>List&lt;ObjectSummary&gt;</code> &mdash; apiName, label, keyPrefix, isCustom. Max 500 results.</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value">Post-query <code>isAccessible()</code> check via <code>Schema.getGlobalDescribe()</code>. Only user-accessible objects returned.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- getObjectDetail -->
+    <div class="method-card" id="mb-getObjectDetail">
+        <div class="method-name">
+            getObjectDetail(objectApiName)
+            <span class="badge badge-cacheable">Cacheable</span>
+        </div>
+        <p class="method-desc">Returns full schema metadata for a specific object including all accessible fields (with relationship info, picklist values), child relationships (capped at 50), and available non-master record types.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled(cacheable=true)</span>
+<span class="kw">public static</span> <span class="type">ObjectDetail</span> <span class="kw">getObjectDetail</span>(<span class="type">String</span> <span class="param">objectApiName</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>objectApiName</code></td>
+                    <td><code>String</code></td>
+                    <td>The API name of the SObject (e.g., <code>Account</code>, <code>My_Object__c</code>).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>ObjectDetail</code> &mdash; apiName, label, keyPrefix, fieldCount, fields (List&lt;FieldInfo&gt;), relationships (List&lt;RelationshipInfo&gt;), recordTypes (List&lt;RecordTypeInfo&gt;)</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>SecurityUtil.validateObjectName()</code>, <code>SecurityUtil.checkObjectCRUD(READ)</code>. Fields filtered by <code>isAccessible()</code>.</div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#toc" class="back-to-top">Back to Table of Contents</a>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 4. DataLoaderController                                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="controller-section" id="data-loader">
+    <div class="controller-header">
+        <h2>DataLoaderController</h2>
+        <p>Handles bulk Insert, Update, and Upsert DML operations with CRUD/FLS enforcement via <code>SecurityUtil</code> and <code>Security.stripInaccessible()</code>. Supports partial success with per-row error reporting. Client should batch at max 200 records per call to stay within governor limits.</p>
+        <span class="sharing-badge">with sharing</span>
+    </div>
+
+    <!-- insertRecords -->
+    <div class="method-card" id="insertRecords">
+        <div class="method-name">
+            insertRecords(objectApiName, fieldsJson, dataJson)
+            <span class="badge badge-power">Power Tools Required</span>
+            <span class="badge badge-dml">DML</span>
+        </div>
+        <p class="method-desc">Bulk inserts records from parsed CSV/clipboard data. Deserializes field names and row data from JSON, builds SObject instances with type-aware value casting, strips inaccessible fields via <code>Security.stripInaccessible(CREATABLE)</code>, and performs <code>Database.insert</code> with <code>allOrNone=false</code> for partial success.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">DMLResult</span> <span class="kw">insertRecords</span>(
+    <span class="type">String</span> <span class="param">objectApiName</span>,
+    <span class="type">String</span> <span class="param">fieldsJson</span>,
+    <span class="type">String</span> <span class="param">dataJson</span>
+)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>objectApiName</code></td>
+                    <td><code>String</code></td>
+                    <td>Target SObject API name (e.g., <code>Account</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>fieldsJson</code></td>
+                    <td><code>String</code></td>
+                    <td>JSON array of field API names. e.g., <code>["Name","Industry"]</code></td>
+                </tr>
+                <tr>
+                    <td><code>dataJson</code></td>
+                    <td><code>String</code></td>
+                    <td>JSON 2D array of string values (rows x columns). e.g., <code>[["Acme","Technology"],["Globex","Finance"]]</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>DMLResult</code> &mdash; totalRequested, successCount, failureCount, per-row results with recordId or errorMessage</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code>, <code>checkObjectCRUD(CREATEABLE)</code>, <code>getAccessibleFields(CREATEABLE)</code>, <code>Security.stripInaccessible(CREATABLE)</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- updateRecords -->
+    <div class="method-card" id="updateRecords">
+        <div class="method-name">
+            updateRecords(objectApiName, fieldsJson, dataJson)
+            <span class="badge badge-power">Power Tools Required</span>
+            <span class="badge badge-dml">DML</span>
+        </div>
+        <p class="method-desc">Bulk updates existing records by Id. The <code>fieldsJson</code> array must include <code>Id</code> as one of the fields, and each data row must provide the record Id at the corresponding index. Uses <code>Database.update</code> with <code>allOrNone=false</code>.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">DMLResult</span> <span class="kw">updateRecords</span>(
+    <span class="type">String</span> <span class="param">objectApiName</span>,
+    <span class="type">String</span> <span class="param">fieldsJson</span>,
+    <span class="type">String</span> <span class="param">dataJson</span>
+)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>objectApiName</code></td>
+                    <td><code>String</code></td>
+                    <td>Target SObject API name.</td>
+                </tr>
+                <tr>
+                    <td><code>fieldsJson</code></td>
+                    <td><code>String</code></td>
+                    <td>JSON array of field API names. Must include <code>Id</code>.</td>
+                </tr>
+                <tr>
+                    <td><code>dataJson</code></td>
+                    <td><code>String</code></td>
+                    <td>JSON 2D array of string values. Each row must contain the record Id.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>DMLResult</code> &mdash; per-row success/failure with recordId or errorMessage</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code>, <code>checkObjectCRUD(UPDATEABLE)</code>, <code>getAccessibleFields(UPDATEABLE)</code>, <code>Security.stripInaccessible(UPDATABLE)</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- upsertRecords -->
+    <div class="method-card" id="upsertRecords">
+        <div class="method-name">
+            upsertRecords(objectApiName, externalIdField, fieldsJson, dataJson)
+            <span class="badge badge-power">Power Tools Required</span>
+            <span class="badge badge-dml">DML</span>
+        </div>
+        <p class="method-desc">Bulk upserts records using an external ID field for matching. Validates that the external ID field exists on the target object. Checks both CREATEABLE and UPDATEABLE CRUD access. Uses <code>Database.upsert</code> with <code>allOrNone=false</code>.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">DMLResult</span> <span class="kw">upsertRecords</span>(
+    <span class="type">String</span> <span class="param">objectApiName</span>,
+    <span class="type">String</span> <span class="param">externalIdField</span>,
+    <span class="type">String</span> <span class="param">fieldsJson</span>,
+    <span class="type">String</span> <span class="param">dataJson</span>
+)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>objectApiName</code></td>
+                    <td><code>String</code></td>
+                    <td>Target SObject API name.</td>
+                </tr>
+                <tr>
+                    <td><code>externalIdField</code></td>
+                    <td><code>String</code></td>
+                    <td>API name of the external ID field used for upsert matching. Must exist on the object.</td>
+                </tr>
+                <tr>
+                    <td><code>fieldsJson</code></td>
+                    <td><code>String</code></td>
+                    <td>JSON array of field API names.</td>
+                </tr>
+                <tr>
+                    <td><code>dataJson</code></td>
+                    <td><code>String</code></td>
+                    <td>JSON 2D array of string values (rows x columns).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>DMLResult</code> &mdash; per-row success/failure with recordId or errorMessage</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code>, <code>checkObjectCRUD(CREATEABLE + UPDATEABLE)</code>, <code>getAccessibleFields(CREATEABLE)</code>, <code>Security.stripInaccessible(UPSERTABLE)</code></div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#toc" class="back-to-top">Back to Table of Contents</a>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 5. SOQLExplorerController                              -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="controller-section" id="soql-explorer">
+    <div class="controller-header">
+        <h2>SOQLExplorerController</h2>
+        <p>Primary controller for the SOQL Explorer module. Supports three query execution strategies (direct, OFFSET pagination, REST cursor pagination), SOSL search, query plan analysis, record export, schema introspection, and inline record editing.</p>
+        <span class="sharing-badge">with sharing</span>
+    </div>
+
+    <!-- executeQuery -->
+    <div class="method-card" id="executeQuery">
+        <div class="method-name">
+            executeQuery(queryString)
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Executes a SOQL query using <code>Database.query()</code>. Extracts the object name from the FROM clause, validates object access, runs the query, and strips inaccessible fields from the result set. Returns all matching records in a single response (no pagination).</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">QueryResult</span> <span class="kw">executeQuery</span>(<span class="type">String</span> <span class="param">queryString</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>queryString</code></td>
+                    <td><code>String</code></td>
+                    <td>The SOQL query string. Cannot be blank.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>QueryResult</code> &mdash; records, objectName, totalSize, columns</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code>, <code>validateObjectName()</code>, <code>checkObjectCRUD(READ)</code>, <code>Security.stripInaccessible(READABLE)</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- executeQueryPaginated -->
+    <div class="method-card" id="executeQueryPaginated">
+        <div class="method-name">
+            executeQueryPaginated(queryString, pageSize, offset)
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Executes a SOQL query with OFFSET-based pagination. Automatically appends <code>LIMIT</code> and <code>OFFSET</code> if the user's query doesn't already contain them. Requests one extra record beyond the page size to detect whether more records exist. Subject to the Salesforce 2000 OFFSET limit.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">QueryResult</span> <span class="kw">executeQueryPaginated</span>(
+    <span class="type">String</span> <span class="param">queryString</span>,
+    <span class="type">Integer</span> <span class="param">pageSize</span>,
+    <span class="type">Integer</span> <span class="param">offset</span>
+)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>queryString</code></td>
+                    <td><code>String</code></td>
+                    <td>The SOQL query string. Cannot be blank.</td>
+                </tr>
+                <tr>
+                    <td><code>pageSize</code></td>
+                    <td><code>Integer</code></td>
+                    <td>Number of records per page. Defaults to 200 if null or &lt;= 0.</td>
+                </tr>
+                <tr>
+                    <td><code>offset</code></td>
+                    <td><code>Integer</code></td>
+                    <td>Starting offset. Defaults to 0 if null or &lt; 0.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>QueryResult</code> &mdash; records, objectName, totalSize, columns, hasMore, nextOffset</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code>, <code>validateObjectName()</code>, <code>checkObjectCRUD(READ)</code>, <code>Security.stripInaccessible(READABLE)</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- executeQueryCursor -->
+    <div class="method-card" id="executeQueryCursor">
+        <div class="method-name">
+            executeQueryCursor(queryString, nextRecordsPath, batchSize)
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Executes a SOQL query using REST API cursor-based pagination via <code>SelfOrgCalloutHelper</code>. No OFFSET limit &mdash; uses Salesforce <code>queryMore</code> mechanism for unlimited paging. On the first call, pass the query string and <code>null</code> for <code>nextRecordsPath</code>. On subsequent calls, pass the <code>nextRecordsPath</code> from the previous response. Sets <code>Sforce-Query-Options</code> header for batch size control.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">QueryResult</span> <span class="kw">executeQueryCursor</span>(
+    <span class="type">String</span> <span class="param">queryString</span>,
+    <span class="type">String</span> <span class="param">nextRecordsPath</span>,
+    <span class="type">Integer</span> <span class="param">batchSize</span>
+)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>queryString</code></td>
+                    <td><code>String</code></td>
+                    <td>The SOQL query string. Required on first call, ignored on subsequent calls when <code>nextRecordsPath</code> is provided.</td>
+                </tr>
+                <tr>
+                    <td><code>nextRecordsPath</code></td>
+                    <td><code>String</code></td>
+                    <td>The <code>nextRecordsUrl</code> from a previous response. Pass <code>null</code> on first call.</td>
+                </tr>
+                <tr>
+                    <td><code>batchSize</code></td>
+                    <td><code>Integer</code></td>
+                    <td>Records per batch. Default 200, max 2000.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>QueryResult</code> &mdash; records, objectName, totalSize, columns, hasMore, nextRecordsPath</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code>, <code>validateObjectName()</code>, <code>checkObjectCRUD(READ)</code> on first call</div>
+            </div>
+        </div>
+
+        <div class="callout callout-info" style="margin-top: 1rem;">
+            <strong>Cursor Pagination</strong>
+            This method replaces <code>executeQueryPaginated</code> as the primary pagination strategy. It eliminates the Salesforce 2000-row OFFSET limit by using the REST API <code>queryMore</code> mechanism. The LWC client auto-streams batches in a while loop.
+        </div>
+    </div>
+
+    <!-- executeSOSL -->
+    <div class="method-card" id="executeSOSL">
+        <div class="method-name">
+            executeSOSL(soslString)
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Executes a SOSL search query using <code>Search.query()</code>. Groups results by object type, strips inaccessible fields, and returns each group with object label and record count.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">SOSLResult</span> <span class="kw">executeSOSL</span>(<span class="type">String</span> <span class="param">soslString</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>soslString</code></td>
+                    <td><code>String</code></td>
+                    <td>The SOSL search string. Cannot be blank.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>SOSLResult</code> &mdash; objectGroups (List&lt;SOSLObjectGroup&gt;), totalRecords</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code>, <code>Security.stripInaccessible(READABLE)</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- createExportFile -->
+    <div class="method-card" id="createExportFile">
+        <div class="method-name">
+            createExportFile(fileName, fileContent)
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Creates a <code>ContentVersion</code> record with the provided file name and content (typically CSV export data). Returns the <code>ContentDocumentId</code> for the created file, which can be used to download or share the export.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">String</span> <span class="kw">createExportFile</span>(
+    <span class="type">String</span> <span class="param">fileName</span>,
+    <span class="type">String</span> <span class="param">fileContent</span>
+)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>fileName</code></td>
+                    <td><code>String</code></td>
+                    <td>The file name including extension (e.g., <code>export.csv</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>fileContent</code></td>
+                    <td><code>String</code></td>
+                    <td>The file content as a string (typically CSV-formatted).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>String</code> &mdash; the <code>ContentDocumentId</code> of the created file</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- getObjectDetail (SOQL) -->
+    <div class="method-card" id="soql-getObjectDetail">
+        <div class="method-name">
+            getObjectDetail(objectApiName)
+            <span class="badge badge-cacheable">Cacheable</span>
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Returns object metadata as a generic <code>Map&lt;String, Object&gt;</code> including apiName, label, and a list of accessible fields with their properties. Used by the SOQL Explorer for autocomplete and schema display. Returns field relationship and reference information for REFERENCE-type fields.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled(cacheable=true)</span>
+<span class="kw">public static</span> <span class="type">Map&lt;String, Object&gt;</span> <span class="kw">getObjectDetail</span>(<span class="type">String</span> <span class="param">objectApiName</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>objectApiName</code></td>
+                    <td><code>String</code></td>
+                    <td>The API name of the SObject.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>Map&lt;String, Object&gt;</code> &mdash; keys: <code>apiName</code>, <code>label</code>, <code>fields</code> (list of field maps with apiName, label, type, isCustom, isRequired, isNameField, length, isUpdateable, isFilterable, relationshipName, referenceTo)</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code>, <code>validateObjectName()</code>. Fields filtered by <code>isAccessible()</code>.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- getFields -->
+    <div class="method-card" id="getFields">
+        <div class="method-name">
+            getFields(objectApiName)
+            <span class="badge badge-cacheable">Cacheable</span>
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Returns a list of accessible field metadata for a given object. Similar to <code>getObjectDetail</code> but returns only the fields array without object-level metadata. Used by the SOQL autocomplete for field suggestions.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled(cacheable=true)</span>
+<span class="kw">public static</span> <span class="type">List&lt;Map&lt;String, Object&gt;&gt;</span> <span class="kw">getFields</span>(<span class="type">String</span> <span class="param">objectApiName</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>objectApiName</code></td>
+                    <td><code>String</code></td>
+                    <td>The API name of the SObject.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>List&lt;Map&lt;String, Object&gt;&gt;</code> &mdash; each map contains apiName, label, type, isCustom, isRequired, isNameField, relationshipName, referenceTo</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code>, <code>validateObjectName()</code>. Fields filtered by <code>isAccessible()</code>.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- getQueryPlan -->
+    <div class="method-card" id="getQueryPlan">
+        <div class="method-name">
+            getQueryPlan(queryString)
+            <span class="badge badge-power">Power Tools Required</span>
+        </div>
+        <p class="method-desc">Retrieves the query execution plan from the Salesforce REST API <code>/query/?explain=</code> endpoint. Returns the optimizer's plan including cost estimates, index usage, and leading operation type. Useful for diagnosing slow queries.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">Map&lt;String, Object&gt;</span> <span class="kw">getQueryPlan</span>(<span class="type">String</span> <span class="param">queryString</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>queryString</code></td>
+                    <td><code>String</code></td>
+                    <td>The SOQL query to analyze.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>Map&lt;String, Object&gt;</code> &mdash; raw REST API explain plan response with plans array, sourceQuery</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- updateRecord (SOQL) -->
+    <div class="method-card" id="soql-updateRecord">
+        <div class="method-name">
+            updateRecord(recordId, objectApiName, fieldUpdatesJson)
+            <span class="badge badge-power">Power Tools Required</span>
+            <span class="badge badge-dml">DML</span>
+        </div>
+        <p class="method-desc">Updates a single record's fields inline from the SOQL Explorer results grid. Validates object-level UPDATE access and field-level updateability before performing the DML operation.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">Map&lt;String, Object&gt;</span> <span class="kw">updateRecord</span>(
+    <span class="type">String</span> <span class="param">recordId</span>,
+    <span class="type">String</span> <span class="param">objectApiName</span>,
+    <span class="type">String</span> <span class="param">fieldUpdatesJson</span>
+)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>recordId</code></td>
+                    <td><code>String</code></td>
+                    <td>The 18-character record Id.</td>
+                </tr>
+                <tr>
+                    <td><code>objectApiName</code></td>
+                    <td><code>String</code></td>
+                    <td>The SObject API name.</td>
+                </tr>
+                <tr>
+                    <td><code>fieldUpdatesJson</code></td>
+                    <td><code>String</code></td>
+                    <td>JSON object of field name/value pairs. e.g., <code>{"Name":"Updated","Industry":"Technology"}</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>Map&lt;String, Object&gt;</code> &mdash; <code>{"success": true, "recordId": "..."}</code></div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>hasPowerToolsPermission()</code>, <code>validateObjectName()</code>, <code>checkObjectCRUD(UPDATEABLE)</code>, per-field <code>isUpdateable()</code> check</div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#toc" class="back-to-top">Back to Table of Contents</a>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 6. RecordInspectorController                           -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="controller-section" id="record-inspector">
+    <div class="controller-header">
+        <h2>RecordInspectorController</h2>
+        <p>Controller for the Record Inspector module. Provides comprehensive record inspection including field values with metadata, child relationships, field history tracking, and inline field editing. Derives the object type from the record Id's key prefix.</p>
+        <span class="sharing-badge">with sharing</span>
+    </div>
+
+    <!-- getRecordData -->
+    <div class="method-card" id="getRecordData">
+        <div class="method-name">
+            getRecordData(recordId)
+        </div>
+        <p class="method-desc">Fetches complete record data for a given record Id. Dynamically queries all accessible fields via <code>SecurityUtil.getAllAccessibleFields()</code>, builds the SOQL at runtime, and returns the record values alongside full field metadata (type, length, editability, picklist values). Includes audit trail info (CreatedBy, LastModifiedBy names and dates).</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">RecordData</span> <span class="kw">getRecordData</span>(<span class="type">Id</span> <span class="param">recordId</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>recordId</code></td>
+                    <td><code>Id</code></td>
+                    <td>The 18-character Salesforce record Id.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>RecordData</code> &mdash; recordId, objectApiName, objectLabel, fieldCount, fields (List&lt;FieldMetadata&gt;), fieldValues, createdDate, lastModifiedDate, createdByName, lastModifiedByName</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>checkObjectCRUD(READ)</code>, <code>getAllAccessibleFields(READ)</code>. Only fields passing <code>isAccessible()</code> are queried and returned.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- deleteRecord -->
+    <div class="method-card" id="deleteRecord">
+        <div class="method-name">
+            deleteRecord(recordId)
+            <span class="badge badge-dml">DML</span>
+        </div>
+        <p class="method-desc">Deletes a single record by Id. Validates DELETE CRUD access on the object before performing the DML operation.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static void</span> <span class="kw">deleteRecord</span>(<span class="type">Id</span> <span class="param">recordId</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>recordId</code></td>
+                    <td><code>Id</code></td>
+                    <td>The Id of the record to delete.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>void</code></div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>checkObjectCRUD(DELETEABLE)</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- bulkDeleteRecords -->
+    <div class="method-card" id="bulkDeleteRecords">
+        <div class="method-name">
+            bulkDeleteRecords(recordIds)
+            <span class="badge badge-dml">DML</span>
+        </div>
+        <p class="method-desc">Bulk deletes multiple records by their Ids. Uses <code>Database.delete</code> with <code>allOrNone=false</code> for partial success. Returns per-row success/failure details. All records must be of the same SObject type (determined from the first Id).</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">BulkDeleteResult</span> <span class="kw">bulkDeleteRecords</span>(<span class="type">List&lt;Id&gt;</span> <span class="param">recordIds</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>recordIds</code></td>
+                    <td><code>List&lt;Id&gt;</code></td>
+                    <td>List of record Ids to delete. All must be the same SObject type.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>BulkDeleteResult</code> &mdash; totalRequested, successCount, failureCount, errors (List&lt;String&gt;), successIds (List&lt;String&gt;)</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>checkObjectCRUD(DELETEABLE)</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- hasChildRelationships -->
+    <div class="method-card" id="hasChildRelationships">
+        <div class="method-name">
+            hasChildRelationships(recordId)
+        </div>
+        <p class="method-desc">Checks whether the object type of the given record has any child relationships defined in its schema. This is a quick check that does not query for actual child records &mdash; it only examines the schema metadata.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">Boolean</span> <span class="kw">hasChildRelationships</span>(<span class="type">Id</span> <span class="param">recordId</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>recordId</code></td>
+                    <td><code>Id</code></td>
+                    <td>The record Id (used to derive the SObject type).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>Boolean</code> &mdash; <code>true</code> if the object has any child relationships in its schema</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value">Schema metadata only &mdash; no data access</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- getChildRelationships -->
+    <div class="method-card" id="getChildRelationships">
+        <div class="method-name">
+            getChildRelationships(recordId)
+        </div>
+        <p class="method-desc">Returns child relationship metadata for the given record's object type, including whether each relationship has records (using <code>LIMIT 1</code> existence check for performance). Capped at 20 relationships. Only includes relationships where the child object is accessible and queryable.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">List&lt;ChildRelationshipInfo&gt;</span> <span class="kw">getChildRelationships</span>(<span class="type">Id</span> <span class="param">recordId</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>recordId</code></td>
+                    <td><code>Id</code></td>
+                    <td>The parent record Id. Used to derive object type and check for child records.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>List&lt;ChildRelationshipInfo&gt;</code> &mdash; relationshipName, childObjectApiName, childObjectLabel, fieldName, recordCount (0 or 1). Max 20 items.</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value">Child objects filtered by <code>isAccessible()</code> and <code>isQueryable()</code></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- getRecordHistory -->
+    <div class="method-card" id="getRecordHistory">
+        <div class="method-name">
+            getRecordHistory(recordId)
+        </div>
+        <p class="method-desc">Retrieves field history tracking entries for the given record. Automatically derives the history object name (e.g., <code>AccountHistory</code> or <code>My_Object__History</code>). Returns the most recent 100 history entries ordered by <code>CreatedDate DESC</code>. Gracefully returns an empty list if history tracking is not enabled for the object.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">List&lt;FieldHistoryItem&gt;</span> <span class="kw">getRecordHistory</span>(<span class="type">Id</span> <span class="param">recordId</span>)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>recordId</code></td>
+                    <td><code>Id</code></td>
+                    <td>The record Id to retrieve history for.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>List&lt;FieldHistoryItem&gt;</code> &mdash; fieldApiName, fieldLabel, oldValue, newValue, createdDate, createdByName. Max 100 entries.</div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value">History object validated via <code>SecurityUtil.validateObjectName()</code> and <code>isAccessible()</code> check</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- updateRecordFields -->
+    <div class="method-card" id="updateRecordFields">
+        <div class="method-name">
+            updateRecordFields(recordId, fieldUpdatesJson)
+            <span class="badge badge-dml">DML</span>
+        </div>
+        <p class="method-desc">Updates specific fields on a record from the Record Inspector's inline edit UI. Validates UPDATE CRUD at the object level and checks <code>isUpdateable()</code> on each individual field before applying values.</p>
+
+        <div class="code-block"><code><span class="ann">@AuraEnabled</span>
+<span class="kw">public static</span> <span class="type">Map&lt;String, Object&gt;</span> <span class="kw">updateRecordFields</span>(
+    <span class="type">Id</span> <span class="param">recordId</span>,
+    <span class="type">String</span> <span class="param">fieldUpdatesJson</span>
+)</code></div>
+
+        <table class="param-table">
+            <thead>
+                <tr><th>Parameter</th><th>Type</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>recordId</code></td>
+                    <td><code>Id</code></td>
+                    <td>The Id of the record to update.</td>
+                </tr>
+                <tr>
+                    <td><code>fieldUpdatesJson</code></td>
+                    <td><code>String</code></td>
+                    <td>JSON object of field name/value pairs. e.g., <code>{"Phone":"555-1234","Website":"https://example.com"}</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="info-row">
+            <div class="info-box">
+                <div class="info-label">Returns</div>
+                <div class="info-value"><code>Map&lt;String, Object&gt;</code> &mdash; <code>{"success": true, "recordId": "..."}</code></div>
+            </div>
+            <div class="info-box security">
+                <div class="info-label">Security</div>
+                <div class="info-value"><code>checkObjectCRUD(UPDATEABLE)</code>, per-field <code>isUpdateable()</code> check</div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#toc" class="back-to-top">Back to Table of Contents</a>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- WRAPPER CLASSES                                        -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="wrapper-section" id="wrapper-classes">
+    <h2>Wrapper Classes</h2>
+    <p>All inner classes used as return types from <code>@AuraEnabled</code> methods. Each field is annotated with <code>@AuraEnabled</code> for LWC wire/imperative access.</p>
+
+    <!-- ApexRunnerController wrappers -->
+    <div class="wrapper-group">
+        <h3>ExecutionResult</h3>
+        <div class="parent-class">ApexRunnerController.ExecutionResult</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>compiled</code></td><td><code>Boolean</code></td><td>Whether the Apex code compiled successfully</td></tr>
+                <tr><td><code>success</code></td><td><code>Boolean</code></td><td>Whether the code executed without runtime exceptions</td></tr>
+                <tr><td><code>compileProblem</code></td><td><code>String</code></td><td>Compile error message (null if compiled)</td></tr>
+                <tr><td><code>exceptionMessage</code></td><td><code>String</code></td><td>Runtime exception message (null if success)</td></tr>
+                <tr><td><code>exceptionStackTrace</code></td><td><code>String</code></td><td>Stack trace of the runtime exception</td></tr>
+                <tr><td><code>line</code></td><td><code>Integer</code></td><td>Line number of the error</td></tr>
+                <tr><td><code>column</code></td><td><code>Integer</code></td><td>Column number of the error</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>ExecutionLog</h3>
+        <div class="parent-class">ApexRunnerController.ExecutionLog</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>logId</code></td><td><code>String</code></td><td>The ApexLog record Id</td></tr>
+                <tr><td><code>durationMs</code></td><td><code>Integer</code></td><td>Execution duration in milliseconds</td></tr>
+                <tr><td><code>status</code></td><td><code>String</code></td><td>Log status (e.g., "Success")</td></tr>
+                <tr><td><code>debugOutput</code></td><td><code>String</code></td><td>Extracted USER_DEBUG lines, newline-separated</td></tr>
+                <tr><td><code>fullLog</code></td><td><code>String</code></td><td>Complete raw debug log body</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>DebugLogInfo</h3>
+        <div class="parent-class">ApexRunnerController.DebugLogInfo</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>id</code></td><td><code>String</code></td><td>ApexLog record Id</td></tr>
+                <tr><td><code>application</code></td><td><code>String</code></td><td>Application context</td></tr>
+                <tr><td><code>durationMs</code></td><td><code>Integer</code></td><td>Duration in milliseconds</td></tr>
+                <tr><td><code>location</code></td><td><code>String</code></td><td>Log location context</td></tr>
+                <tr><td><code>logLength</code></td><td><code>Integer</code></td><td>Size of the log body in characters</td></tr>
+                <tr><td><code>userName</code></td><td><code>String</code></td><td>Name of the user who generated the log</td></tr>
+                <tr><td><code>operation</code></td><td><code>String</code></td><td>Operation that triggered the log</td></tr>
+                <tr><td><code>request</code></td><td><code>String</code></td><td>Request type</td></tr>
+                <tr><td><code>startTime</code></td><td><code>String</code></td><td>ISO 8601 start timestamp</td></tr>
+                <tr><td><code>status</code></td><td><code>String</code></td><td>Log status</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- MetadataBrowserController wrappers -->
+    <div class="wrapper-group">
+        <h3>ObjectSummary</h3>
+        <div class="parent-class">MetadataBrowserController.ObjectSummary</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>apiName</code></td><td><code>String</code></td><td>Qualified API name (e.g., <code>Account</code>)</td></tr>
+                <tr><td><code>label</code></td><td><code>String</code></td><td>User-facing label</td></tr>
+                <tr><td><code>keyPrefix</code></td><td><code>String</code></td><td>3-character key prefix (e.g., <code>001</code>)</td></tr>
+                <tr><td><code>isCustom</code></td><td><code>Boolean</code></td><td>True if API name ends with <code>__c</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>ObjectDetail</h3>
+        <div class="parent-class">MetadataBrowserController.ObjectDetail</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>apiName</code></td><td><code>String</code></td><td>Object API name</td></tr>
+                <tr><td><code>label</code></td><td><code>String</code></td><td>Object label</td></tr>
+                <tr><td><code>keyPrefix</code></td><td><code>String</code></td><td>3-character key prefix</td></tr>
+                <tr><td><code>fieldCount</code></td><td><code>Integer</code></td><td>Number of accessible fields</td></tr>
+                <tr><td><code>fields</code></td><td><code>List&lt;FieldInfo&gt;</code></td><td>Accessible field metadata</td></tr>
+                <tr><td><code>relationships</code></td><td><code>List&lt;RelationshipInfo&gt;</code></td><td>Child relationships (max 50)</td></tr>
+                <tr><td><code>recordTypes</code></td><td><code>List&lt;RecordTypeInfo&gt;</code></td><td>Available, non-master record types</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>FieldInfo</h3>
+        <div class="parent-class">MetadataBrowserController.FieldInfo</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>apiName</code></td><td><code>String</code></td><td>Field API name</td></tr>
+                <tr><td><code>label</code></td><td><code>String</code></td><td>Field label</td></tr>
+                <tr><td><code>type</code></td><td><code>String</code></td><td>DisplayType name (e.g., STRING, REFERENCE, PICKLIST)</td></tr>
+                <tr><td><code>length</code></td><td><code>Integer</code></td><td>Max field length</td></tr>
+                <tr><td><code>isCustom</code></td><td><code>Boolean</code></td><td>Whether the field is custom</td></tr>
+                <tr><td><code>isRequired</code></td><td><code>Boolean</code></td><td>True if not nillable and createable</td></tr>
+                <tr><td><code>isUpdateable</code></td><td><code>Boolean</code></td><td>Whether the field is editable</td></tr>
+                <tr><td><code>isNameField</code></td><td><code>Boolean</code></td><td>Whether this is the Name field</td></tr>
+                <tr><td><code>isFilterable</code></td><td><code>Boolean</code></td><td>Whether the field can be used in WHERE clauses</td></tr>
+                <tr><td><code>isUnique</code></td><td><code>Boolean</code></td><td>Whether the field has a uniqueness constraint</td></tr>
+                <tr><td><code>isExternalId</code></td><td><code>Boolean</code></td><td>Whether the field is an external ID</td></tr>
+                <tr><td><code>referenceTo</code></td><td><code>List&lt;String&gt;</code></td><td>Referenced object names (for REFERENCE type)</td></tr>
+                <tr><td><code>relationshipName</code></td><td><code>String</code></td><td>Relationship name (for REFERENCE type)</td></tr>
+                <tr><td><code>picklistValues</code></td><td><code>List&lt;String&gt;</code></td><td>Active picklist values (for PICKLIST/MULTIPICKLIST)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>RelationshipInfo</h3>
+        <div class="parent-class">MetadataBrowserController.RelationshipInfo</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>relationshipName</code></td><td><code>String</code></td><td>Child relationship name (e.g., <code>Contacts</code>)</td></tr>
+                <tr><td><code>childObject</code></td><td><code>String</code></td><td>Child SObject API name</td></tr>
+                <tr><td><code>fieldName</code></td><td><code>String</code></td><td>The lookup/master-detail field on the child object</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>RecordTypeInfo</h3>
+        <div class="parent-class">MetadataBrowserController.RecordTypeInfo</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>name</code></td><td><code>String</code></td><td>Record type label</td></tr>
+                <tr><td><code>developerName</code></td><td><code>String</code></td><td>Record type developer name</td></tr>
+                <tr><td><code>recordTypeId</code></td><td><code>Id</code></td><td>Record type Id</td></tr>
+                <tr><td><code>isDefault</code></td><td><code>Boolean</code></td><td>Whether this is the default record type for the user</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- DataLoaderController wrappers -->
+    <div class="wrapper-group">
+        <h3>DMLResult</h3>
+        <div class="parent-class">DataLoaderController.DMLResult</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>totalRequested</code></td><td><code>Integer</code></td><td>Number of records submitted for DML</td></tr>
+                <tr><td><code>successCount</code></td><td><code>Integer</code></td><td>Number of successfully processed records</td></tr>
+                <tr><td><code>failureCount</code></td><td><code>Integer</code></td><td>Number of failed records</td></tr>
+                <tr><td><code>rows</code></td><td><code>List&lt;RowResult&gt;</code></td><td>Per-row results</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>RowResult</h3>
+        <div class="parent-class">DataLoaderController.RowResult</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>rowIndex</code></td><td><code>Integer</code></td><td>Zero-based row index in the input data</td></tr>
+                <tr><td><code>success</code></td><td><code>Boolean</code></td><td>Whether this row was processed successfully</td></tr>
+                <tr><td><code>recordId</code></td><td><code>String</code></td><td>The created/updated record Id (on success)</td></tr>
+                <tr><td><code>errorMessage</code></td><td><code>String</code></td><td>Error message (on failure)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SOQLExplorerController wrappers -->
+    <div class="wrapper-group">
+        <h3>QueryResult</h3>
+        <div class="parent-class">SOQLExplorerController.QueryResult</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>records</code></td><td><code>List&lt;SObject&gt;</code></td><td>Query result records</td></tr>
+                <tr><td><code>objectName</code></td><td><code>String</code></td><td>The queried SObject API name</td></tr>
+                <tr><td><code>totalSize</code></td><td><code>Integer</code></td><td>Total number of records in this response</td></tr>
+                <tr><td><code>columns</code></td><td><code>List&lt;ColumnInfo&gt;</code></td><td>Column metadata for result display</td></tr>
+                <tr><td><code>hasMore</code></td><td><code>Boolean</code></td><td>Whether additional pages are available</td></tr>
+                <tr><td><code>nextOffset</code></td><td><code>Integer</code></td><td>Next OFFSET value (for OFFSET pagination)</td></tr>
+                <tr><td><code>nextRecordsPath</code></td><td><code>String</code></td><td>Next records URL path (for cursor pagination)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>ColumnInfo</h3>
+        <div class="parent-class">SOQLExplorerController.ColumnInfo</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>fieldName</code></td><td><code>String</code></td><td>API name of the column field</td></tr>
+                <tr><td><code>label</code></td><td><code>String</code></td><td>User-facing column label</td></tr>
+                <tr><td><code>type</code></td><td><code>String</code></td><td>DisplayType name of the field</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>SOSLResult</h3>
+        <div class="parent-class">SOQLExplorerController.SOSLResult</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>objectGroups</code></td><td><code>List&lt;SOSLObjectGroup&gt;</code></td><td>Results grouped by object type</td></tr>
+                <tr><td><code>totalRecords</code></td><td><code>Integer</code></td><td>Total records across all groups</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>SOSLObjectGroup</h3>
+        <div class="parent-class">SOQLExplorerController.SOSLObjectGroup</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>objectApiName</code></td><td><code>String</code></td><td>API name of the matched object</td></tr>
+                <tr><td><code>objectLabel</code></td><td><code>String</code></td><td>Label of the matched object</td></tr>
+                <tr><td><code>recordCount</code></td><td><code>Integer</code></td><td>Number of records in this group</td></tr>
+                <tr><td><code>records</code></td><td><code>List&lt;SObject&gt;</code></td><td>Matched records for this object type</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- RecordInspectorController wrappers -->
+    <div class="wrapper-group">
+        <h3>RecordData</h3>
+        <div class="parent-class">RecordInspectorController.RecordData</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>recordId</code></td><td><code>String</code></td><td>The 18-character record Id</td></tr>
+                <tr><td><code>objectApiName</code></td><td><code>String</code></td><td>SObject API name</td></tr>
+                <tr><td><code>objectLabel</code></td><td><code>String</code></td><td>SObject label</td></tr>
+                <tr><td><code>fieldCount</code></td><td><code>Integer</code></td><td>Number of accessible fields</td></tr>
+                <tr><td><code>fields</code></td><td><code>List&lt;FieldMetadata&gt;</code></td><td>Full field metadata for each accessible field</td></tr>
+                <tr><td><code>fieldValues</code></td><td><code>Map&lt;String, Object&gt;</code></td><td>Field API name to value mapping</td></tr>
+                <tr><td><code>createdDate</code></td><td><code>Datetime</code></td><td>Record creation timestamp</td></tr>
+                <tr><td><code>lastModifiedDate</code></td><td><code>Datetime</code></td><td>Last modification timestamp</td></tr>
+                <tr><td><code>createdByName</code></td><td><code>String</code></td><td>Name of the user who created the record</td></tr>
+                <tr><td><code>lastModifiedByName</code></td><td><code>String</code></td><td>Name of the user who last modified the record</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>FieldMetadata</h3>
+        <div class="parent-class">RecordInspectorController.FieldMetadata</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>apiName</code></td><td><code>String</code></td><td>Field API name</td></tr>
+                <tr><td><code>label</code></td><td><code>String</code></td><td>Field label</td></tr>
+                <tr><td><code>type</code></td><td><code>String</code></td><td>DisplayType name</td></tr>
+                <tr><td><code>length</code></td><td><code>Integer</code></td><td>Max field length</td></tr>
+                <tr><td><code>isCustom</code></td><td><code>Boolean</code></td><td>Whether the field is custom</td></tr>
+                <tr><td><code>isRequired</code></td><td><code>Boolean</code></td><td>Whether the field is required for creation</td></tr>
+                <tr><td><code>isUpdateable</code></td><td><code>Boolean</code></td><td>Whether the field can be edited</td></tr>
+                <tr><td><code>isCalculated</code></td><td><code>Boolean</code></td><td>Whether the field is a formula</td></tr>
+                <tr><td><code>isNameField</code></td><td><code>Boolean</code></td><td>Whether this is the Name field</td></tr>
+                <tr><td><code>description</code></td><td><code>String</code></td><td>Field description / help text</td></tr>
+                <tr><td><code>inlineHelpText</code></td><td><code>String</code></td><td>Inline help text</td></tr>
+                <tr><td><code>picklistValues</code></td><td><code>List&lt;Map&lt;String, String&gt;&gt;</code></td><td>Active picklist entries with <code>label</code> and <code>value</code> keys</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>ChildRelationshipInfo</h3>
+        <div class="parent-class">RecordInspectorController.ChildRelationshipInfo</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>relationshipName</code></td><td><code>String</code></td><td>Child relationship name</td></tr>
+                <tr><td><code>childObjectApiName</code></td><td><code>String</code></td><td>Child object API name</td></tr>
+                <tr><td><code>childObjectLabel</code></td><td><code>String</code></td><td>Child object label</td></tr>
+                <tr><td><code>fieldName</code></td><td><code>String</code></td><td>The lookup field on the child object</td></tr>
+                <tr><td><code>recordCount</code></td><td><code>Integer</code></td><td>0 (empty) or 1 (has records) via LIMIT 1 check</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>FieldHistoryItem</h3>
+        <div class="parent-class">RecordInspectorController.FieldHistoryItem</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>fieldApiName</code></td><td><code>String</code></td><td>API name of the changed field</td></tr>
+                <tr><td><code>fieldLabel</code></td><td><code>String</code></td><td>Label of the changed field</td></tr>
+                <tr><td><code>oldValue</code></td><td><code>Object</code></td><td>Previous field value</td></tr>
+                <tr><td><code>newValue</code></td><td><code>Object</code></td><td>New field value</td></tr>
+                <tr><td><code>createdDate</code></td><td><code>Datetime</code></td><td>When the change was made</td></tr>
+                <tr><td><code>createdByName</code></td><td><code>String</code></td><td>Name of the user who made the change</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="wrapper-group">
+        <h3>BulkDeleteResult</h3>
+        <div class="parent-class">RecordInspectorController.BulkDeleteResult</div>
+        <table class="param-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>totalRequested</code></td><td><code>Integer</code></td><td>Total number of records submitted for deletion</td></tr>
+                <tr><td><code>successCount</code></td><td><code>Integer</code></td><td>Number of successfully deleted records</td></tr>
+                <tr><td><code>failureCount</code></td><td><code>Integer</code></td><td>Number of records that failed to delete</td></tr>
+                <tr><td><code>errors</code></td><td><code>List&lt;String&gt;</code></td><td>Error messages with row index prefix</td></tr>
+                <tr><td><code>successIds</code></td><td><code>List&lt;String&gt;</code></td><td>Ids of successfully deleted records</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a href="#toc" class="back-to-top">Back to Table of Contents</a>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SECURITY MODEL                                         -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="security-section" id="security-model">
+    <h2>Security Model</h2>
+    <p>All controllers in the Developer Tools suite enforce security through <code>SecurityUtil</code>, a centralized utility class that provides consistent CRUD, FLS, and permission checks. Every controller class is declared <code>with sharing</code> to enforce record-level sharing rules.</p>
+
+    <div class="security-layer">
+        <h4>Layer 1: Custom Permission Gate</h4>
+        <p>Access to the tool suite is gated by the <code>Dev_Tools_Access</code> custom permission, checked via <code>FeatureManagement.checkPermission()</code> in <code>DevToolsAccessController.hasAccess()</code>. The LWC checks this on load and hides all UI if denied.</p>
+    </div>
+
+    <div class="security-layer">
+        <h4>Layer 2: Power Tools Permission</h4>
+        <p>Elevated operations (Apex execution, SOQL queries, DML, exports) require the <code>Dev_Tools_Power</code> custom permission, checked via <code>SecurityUtil.hasPowerToolsPermission()</code>. Methods throw <code>AuraHandledException</code> if denied. <code>ensureTraceFlag()</code> silently returns instead of throwing (non-critical setup).</p>
+    </div>
+
+    <div class="security-layer">
+        <h4>Layer 3: Object-Level CRUD</h4>
+        <p><code>SecurityUtil.checkObjectCRUD(objectType, operation)</code> validates the user has the required CRUD permission (READ, CREATEABLE, UPDATEABLE, DELETEABLE) on the target SObject. Throws <code>SecurityUtil.SecurityException</code> if denied. Object names are validated against <code>Schema.getGlobalDescribe()</code> (cached per transaction) via <code>validateObjectName()</code>.</p>
+    </div>
+
+    <div class="security-layer">
+        <h4>Layer 4: Field-Level Security (FLS)</h4>
+        <p>Two complementary mechanisms enforce FLS:</p>
+        <p><strong>Pre-query filtering:</strong> <code>SecurityUtil.getAccessibleFields()</code> and <code>getAllAccessibleFields()</code> filter field lists to only those the user can access for the requested operation.</p>
+        <p><strong>Post-query stripping:</strong> <code>Security.stripInaccessible()</code> (platform API) removes inaccessible field values from query results and DML payloads, supporting <code>READABLE</code>, <code>CREATABLE</code>, <code>UPDATABLE</code>, and <code>UPSERTABLE</code> access types.</p>
+    </div>
+
+    <div class="security-layer">
+        <h4>Layer 5: Input Validation</h4>
+        <p><code>SecurityUtil.validateObjectName()</code> ensures object names exist in the global describe, preventing injection of arbitrary object names. <code>SecurityUtil.validateApiName()</code> enforces a <code>^[a-zA-Z][a-zA-Z0-9_]*$</code> regex pattern for API names. <code>SecurityUtil.sanitizeForSOQL()</code> applies <code>String.escapeSingleQuotes()</code> for safe SOQL construction.</p>
+    </div>
+
+    <div class="security-layer">
+        <h4>Session-Based API Authentication</h4>
+        <p><code>SelfOrgCalloutHelper</code> authenticates REST and Tooling API callouts using the current user's session Id (obtained from a Visualforce page or <code>UserInfo.getSessionId()</code>). All requests are scoped to the same org (<code>URL.getOrgDomainUrl()</code>) and inherit the user's permissions. The session Id is cached per-request to avoid redundant VF page evaluations.</p>
+    </div>
+
+    <div class="callout callout-warning" style="margin-top: 1.5rem;">
+        <strong>Permission Set Assignment</strong>
+        Users need the <code>Dev_Tools_Access</code> permission set for basic access and the <code>Dev_Tools_Power</code> permission set for data operations. Both are custom permissions checked at runtime &mdash; they are not tied to profiles.
+    </div>
+
+    <a href="#toc" class="back-to-top">Back to Table of Contents</a>
+</section>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="footer">
+    <strong>ABN AMRO Salesforce Developer Tools</strong> &mdash; API Reference v1.0<br>
+    Internal use only. March 2026.
+</div>
+
+</body>
+</html>
