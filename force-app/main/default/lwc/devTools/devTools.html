@@ -850,10 +850,10 @@
                                             <tr key={m.csvIndex}>
                                                 <td class="abn-text-mono">{m.csvHeader}</td>
                                                 <td>
-                                                    <select class="abn-select" data-index={m.csvIndex} value={m.sfField} onchange={handleDlMappingChange}>
+                                                    <select class="abn-select" data-index={m.csvIndex} onchange={handleDlMappingChange}>
                                                         <option value="">-- Skip --</option>
-                                                        <template for:each={_dlTargetFields} for:item="tf">
-                                                            <option key={tf.apiName} value={tf.apiName} selected={tf.selected}>{tf.apiName} ({tf.label})</option>
+                                                        <template for:each={m.options} for:item="tf">
+                                                            <option key={tf.apiName} value={tf.apiName} selected={tf.isSelected}>{tf.apiName} ({tf.label})</option>
                                                         </template>
                                                     </select>
                                                 </td>

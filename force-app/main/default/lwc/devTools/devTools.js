@@ -2512,13 +2512,21 @@ export default class DevTools extends LightningElement {
             const op = this._dlOperation;
             this._dlTargetFields = (fields || []).filter(f => {
                 if (f.apiName === 'Id') return true;
+                // If isCreateable/isUpdateable are missing (stale LDS cache), include all accessible fields
+                const hasPerms = f.isCreateable !== undefined || f.isUpdateable !== undefined;
+                if (!hasPerms) return true;
                 if (op === 'insert') return f.isCreateable;
                 return f.isUpdateable;
             });
             const mappings = autoMapFields(this._dlParsedData.headers, this._dlTargetFields);
             this._dlMappings = mappings.map(m => ({
                 ...m,
-                confidenceClass: `abn-confidence--${m.confidence}`
+                confidenceClass: `abn-confidence--${m.confidence}`,
+                options: this._dlTargetFields.map(tf => ({
+                    apiName: tf.apiName,
+                    label: tf.label,
+                    isSelected: tf.apiName === m.sfField
+                }))
             }));
         } catch (e) {
             this._showToast('Error loading fields: ' + this._extractError(e), 'error');
@@ -2529,7 +2537,12 @@ export default class DevTools extends LightningElement {
         const index = parseInt(event.currentTarget.dataset.index, 10);
         const value = event.target.value;
         this._dlMappings = this._dlMappings.map((m, i) =>
-            i === index ? { ...m, sfField: value, isMatched: !!value } : m
+            i === index ? {
+                ...m, sfField: value, isMatched: !!value,
+                options: this._dlTargetFields.map(tf => ({
+                    apiName: tf.apiName, label: tf.label, isSelected: tf.apiName === value
+                }))
+            } : m
         );
     }
 
