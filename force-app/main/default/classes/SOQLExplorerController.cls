@@ -328,6 +328,8 @@ public with sharing class SOQLExplorerController {
                 f.put('isCustom', fd.isCustom());
                 f.put('isRequired', !fd.isNillable() && fd.isCreateable());
                 f.put('isNameField', fd.isNameField());
+                f.put('isUpdateable', fd.isUpdateable());
+                f.put('isCreateable', fd.isCreateable());
                 if (fd.getType() == Schema.DisplayType.REFERENCE) {
                     f.put('relationshipName', fd.getRelationshipName());
                     List<String> refTo = new List<String>();

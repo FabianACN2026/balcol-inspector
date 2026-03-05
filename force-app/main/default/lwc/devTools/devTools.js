@@ -2509,7 +2509,12 @@ export default class DevTools extends LightningElement {
     async _prepareMappings() {
         try {
             const fields = await getFields({ objectApiName: this._dlSelectedObject });
-            this._dlTargetFields = (fields || []).filter(f => f.isUpdateable || f.apiName === 'Id');
+            const op = this._dlOperation;
+            this._dlTargetFields = (fields || []).filter(f => {
+                if (f.apiName === 'Id') return true;
+                if (op === 'insert') return f.isCreateable;
+                return f.isUpdateable;
+            });
             const mappings = autoMapFields(this._dlParsedData.headers, this._dlTargetFields);
             this._dlMappings = mappings.map(m => ({
                 ...m,
