@@ -34,7 +34,7 @@ public with sharing class MetadataBrowserController {
                 apiName.toLowerCase().contains(searchTermLower) ||
                 (label != null && label.toLowerCase().contains(searchTermLower))
             ) {
-                results.add(new ObjectSummary(apiName, label, desc.getKeyPrefix()));
+                results.add(new ObjectSummary(apiName, label, objDesc.getKeyPrefix()));
             }
         }
         results.sort();
