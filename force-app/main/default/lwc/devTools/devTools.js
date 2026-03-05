@@ -1778,7 +1778,7 @@ export default class DevTools extends LightningElement {
         const tab = this._currentTab;
         if (!tab || !tab.results || !tab.columns) return;
 
-        const content = buildCSVContent(tab.columns, tab.results);
+        const content = buildCSVContent(tab.columns, tab.flatResults || tab.results);
         const fileName = `${tab.objectName || 'export'}_${new Date().toISOString().slice(0, 10)}.csv`;
         try {
             const docId = await createExportFile({ fileName, fileContent: content });
