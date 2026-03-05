@@ -1543,6 +1543,7 @@
                     <li><strong>Apex &mdash; <code>buildColumns()</code></strong>: Detects <code>SObject</code> values in <code>getPopulatedFieldsAsMap()</code> and recursively extracts nested fields into dot-notation column paths via <code>flattenColumnsFromSObject()</code>. Used by <code>executeQuery</code> and <code>executeQueryPaginated</code>.</li>
                     <li><strong>Apex &mdash; <code>buildColumnsFromMap()</code></strong>: For the REST API cursor path, columns are built from raw JSON maps (before SObject deserialization) to reliably detect nested relationship objects. Skips <code>attributes</code> metadata keys. Supports unlimited relationship depth.</li>
                     <li><strong>LWC &mdash; <code>_flattenRecords()</code></strong>: Converts nested record objects (<code>{Account__r: {Name: "Acme"}}</code>) into flat dot-notation maps (<code>{"Account__r.Name": "Acme"}</code>) for <code>lightning-datatable</code> compatibility. Runs once when results arrive, stored as <code>flatResults</code> alongside raw <code>results</code>.</li>
+                    <li><strong>CSV Export</strong>: <code>handleExportCSV()</code> uses <code>flatResults</code> (not raw <code>results</code>) so that <code>buildCSVContent()</code> can match dot-notation column keys to flattened record properties. Without this, relationship field cells would be empty in exported CSV files.</li>
                 </ul>
             </div>
 
