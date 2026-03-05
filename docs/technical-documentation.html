@@ -1487,7 +1487,7 @@
                             <td><code>String queryString</code>, <code>String nextRecordsUrl</code>, <code>Integer batchSize</code></td>
                             <td><code>QueryResult</code></td>
                             <td>Power</td>
-                            <td>REST API cursor pagination via <code>SelfOrgCalloutHelper</code>. Uses <code>Sforce-Query-Options</code> header. No offset limit.</td>
+                            <td>REST API cursor pagination via <code>SelfOrgCalloutHelper</code>. Uses <code>Sforce-Query-Options</code> header. No offset limit. Builds columns from raw JSON maps via <code>buildColumnsFromMap()</code> for reliable relationship field detection.</td>
                         </tr>
                         <tr>
                             <td><code>executeSOSL</code></td>
@@ -1536,6 +1536,14 @@
             </div>
             <div class="wrapper-box">
                 <strong>Wrapper Classes:</strong> <code>QueryResult</code>, <code>ColumnInfo</code>, <code>SOSLResult</code>, <code>SOSLObjectGroup</code>
+            </div>
+            <div class="callout callout-info">
+                <strong>Relationship Field Support:</strong> Queries with lookup/relationship fields (e.g., <code>SELECT Account__r.Name, Owner.Email FROM Contact</code>) are fully supported with automatic column detection and value flattening.
+                <ul style="margin-top:8px;margin-bottom:0;">
+                    <li><strong>Apex &mdash; <code>buildColumns()</code></strong>: Detects <code>SObject</code> values in <code>getPopulatedFieldsAsMap()</code> and recursively extracts nested fields into dot-notation column paths via <code>flattenColumnsFromSObject()</code>. Used by <code>executeQuery</code> and <code>executeQueryPaginated</code>.</li>
+                    <li><strong>Apex &mdash; <code>buildColumnsFromMap()</code></strong>: For the REST API cursor path, columns are built from raw JSON maps (before SObject deserialization) to reliably detect nested relationship objects. Skips <code>attributes</code> metadata keys. Supports unlimited relationship depth.</li>
+                    <li><strong>LWC &mdash; <code>_flattenRecords()</code></strong>: Converts nested record objects (<code>{Account__r: {Name: "Acme"}}</code>) into flat dot-notation maps (<code>{"Account__r.Name": "Acme"}</code>) for <code>lightning-datatable</code> compatibility. Runs once when results arrive, stored as <code>flatResults</code> alongside raw <code>results</code>.</li>
+                </ul>
             </div>
 
             <!-- 3.4 MetadataBrowserController -->
