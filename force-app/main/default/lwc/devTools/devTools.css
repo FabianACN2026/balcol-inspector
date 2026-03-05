@@ -1484,6 +1484,11 @@ lightning-icon {
     --lwc-colorBackgroundAlt: var(--abn-bg-surface-solid);
     --lwc-colorBorder: var(--abn-border-default);
     --lwc-tableColorBackgroundHeader: var(--abn-bg-inset);
+    --lwc-colorTextDefault: var(--abn-text-primary);
+    --lwc-tableColorTextHeader: var(--abn-text-tertiary);
+    --lwc-colorTextLink: var(--abn-accent);
+    --lwc-colorBackgroundRowHover: var(--abn-bg-hover);
+    --lwc-colorBackgroundRowSelected: var(--abn-accent-bg);
 }
 
 /* ================================

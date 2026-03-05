@@ -68,7 +68,7 @@ export default class DevTools extends LightningElement {
     _isLoading = true;
     _hasAccess = false;
     _activeTab = 'recordInspector';
-    _theme = 'dark';
+    _theme = 'light';
     _toast = null;
     _showPreferences = false;
     _showOnboarding = false;
@@ -234,7 +234,7 @@ export default class DevTools extends LightningElement {
 
     _initPreferences() {
         const prefs = getPreferences();
-        this._theme = prefs.theme || 'dark';
+        this._theme = prefs.theme || 'light';
         this._activeTab = prefs.defaultTab || 'recordInspector';
         this._showRowNumbers = prefs.showRowNumbers !== false;
         this._applyTheme();
