@@ -1489,6 +1489,11 @@ lightning-icon {
     --lwc-colorTextLink: var(--abn-accent);
     --lwc-colorBackgroundRowHover: var(--abn-bg-hover);
     --lwc-colorBackgroundRowSelected: var(--abn-accent-bg);
+    --sds-c-text-color: var(--abn-text-primary);
+    --sds-c-text-heading-color: var(--abn-text-primary);
+    --lwc-colorTextActionLabel: var(--abn-text-primary);
+    --lwc-colorTextLabel: var(--abn-text-primary);
+    color: var(--abn-text-primary);
 }
 
 /* ================================
